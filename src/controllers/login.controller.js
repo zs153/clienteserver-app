@@ -93,37 +93,3 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json(error)
   }
 }
-export const crearRegistro = async (req, res) => {
-  const { nombre, oficina, rol, userid, email, perfil, telefono, estado } =
-    req.body.nuevoRegistro
-  const randomString = Math.random().toString().slice(2, 6)
-  const password = userid + randomString
-
-  try {
-    const usuario = new Usuario()
-    const salt = await bcrypt.genSalt(10)
-    const passHash = await bcrypt.hash(password, salt)
-
-    usuario.nombre = nombre
-    usuario.oficina = oficina
-    usuario.rol = rol
-    usuario.userid = userid
-    usuario.email = email
-    usuario.perfil = perfil
-    usuario.telefono = telefono
-    usuario.estado = estado
-    usuario.password = passHash
-    usuario.movimiento.tipo = tiposMovimiento.registroUsuario
-    usuario.salt = randomString
-
-    const { err, dat } = await usuario.registro()
-
-    if (err) {
-      res.status(401).json(err)
-    } else {
-      res.status(200).json('Se ha generado una nueva contraseña')
-    }
-  } catch (error) {
-    res.status(500).json('No se ha podido conectar con el servidor')
-  }
-}
