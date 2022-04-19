@@ -1,100 +1,83 @@
-import Oficina from '../models/oficina.model'
+import { find, insert, update, remove } from "../models/oficina.model";
 
-let oficina = new Oficina()
+const getOficinaFromRec = (req) => {
+  const Oficina = {
+    idofic: req.body.idusua,
+    desofi: req.body.nomusu,
+    codofi: req.body.ofiusu,
+  };
 
+  return Oficina;
+};
 export const getOficinas = async (req, res) => {
   try {
-    const { err, dat } = await oficina.getOficinas()
+    const context = {};
 
-    if (err) {
-      return res.status(404).json({ err })
+    context.id = parseInt(req.params.id, 10);
+
+    const rows = await find(context);
+
+    if (req.params.id) {
+      if (rows.length === 1) {
+        res.status(200).json(rows[0]);
+      } else {
+        res.status(404).end();
+      }
     } else {
-      return res.status(201).json({ dat })
+      res.status(200).json(rows);
     }
-  } catch (error) {
-    res.status(500).status(error)
+  } catch (err) {
+    res.status(500).end();
   }
-}
-export const getOficina = async (req, res) => {
-  oficina.id = req.body.idofic
+};
 
-  try {
-    const { err, dat } = await oficina.getOficina()
-
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      return res.status(200).send(oficina)
-    }
-  } catch (error) {
-    return res.status(500).json({ err })
-  }
-}
 export const insertOficina = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const user = req.body.user
-
-  // oficina
-  oficina.descripcion = req.body.oficina.desofi
-  oficina.codigo = req.body.oficina.codofi
-  // movimiento
-  oficina.movimiento.usuario = usuarioMov
-  oficina.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await oficina.insert()
+    let oficina = getOficinaFromRec(req);
+    oficina.movimiento = {
+      usumov: req.body.movimiento.usuarioMov,
+      tipmov: req.body.movimiento.tipoMov,
+    };
+    oficina = await insert(oficina);
 
-    if (err) {
-      res.status(403).json(err)
-    } else {
-      res.status(202).json(oficina)
-    }
-  } catch (error) {
-    res.status(500).json({ err })
+    res.status(201).json(oficina);
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};
 export const updateOficina = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // oficina
-  oficina.id = req.body.oficina.idofic
-  oficina.descripcion = req.body.oficina.desofi
-  oficina.codigo = req.body.oficina.codofi
-  // movimiento
-  oficina.movimiento.usuario = usuarioMov
-  oficina.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await oficina.update()
+    let oficina = getOficinaFromRec(req);
+    oficina.movimiento = {
+      usumov: req.body.movimiento.usuarioMov,
+      tipmov: req.body.movimiento.tipoMov,
+    };
+    oficina = await update(oficina);
 
-    if (err) {
-      res.status(403).json(err)
+    if (oficina !== null) {
+      res.status(200).json(oficina);
     } else {
-      res.status(202).json(oficina)
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json({ err })
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};
 export const deleteOficina = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const user = req.body.user
-
-  // oficina
-  oficina.id = req.body.oficina.idofic
-  // movimiento
-  oficina.movimiento.usuario = usuarioMov
-  oficina.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await oficina.delete()
+    let oficina = getOficinaFromRec(req);
+    oficina.movimiento = {
+      usumov: req.body.movimiento.oficinaMov,
+      tipmov: req.body.movimiento.tipoMov,
+    };
+    const success = await remove(oficina);
 
-    if (err) {
-      res.status(403).json(err)
+    if (success) {
+      res.status(204).end();
     } else {
-      res.status(202).json(oficina)
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json({ err })
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};

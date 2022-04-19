@@ -1,164 +1,132 @@
-import Usuario from '../models/usuario.model'
-import bcrypt from 'bcrypt'
+import {
+  find,
+  findByEmail,
+  findByUserid,
+  insert,
+  update,
+  remove,
+} from "../models/usuario.model";
 
-let usuario = new Usuario()
+const getUsuarioFromRec = (req) => {
+  const usuario = {
+    idusua: req.body.idusua,
+    nomusu: req.body.nomusu,
+    ofiusu: req.body.ofiusu,
+    rolusu: req.body.rolusu,
+    userid: req.body.userid,
+    emausu: req.body.emausu,
+    perusu: req.body.perusu,
+    telusu: req.body.telusu,
+    stausu: req.body.stausu,
+  };
 
+  return usuario;
+};
 export const getUsuarios = async (req, res) => {
   try {
-    const { err, dat } = await usuario.getUsuarios()
+    const context = {};
 
-    if (err) {
-      return res.status(404).json({ err })
+    context.id = parseInt(req.params.id, 10);
+
+    const rows = await find(context);
+
+    if (req.params.id) {
+      if (rows.length === 1) {
+        res.status(200).json(rows[0]);
+      } else {
+        res.status(404).end();
+      }
     } else {
-      return res.status(200).json({ dat })
+      res.status(200).json(rows);
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(400).end();
   }
-}
+};
 export const getUsuario = async (req, res) => {
-  usuario.userid = req.body.userid
   try {
-    const { err, dat } = await usuario.getUsuarioByUserID()
+    const context = {};
 
-    if (err) {
-      res.status(412).send(err)
+    context.userid = req.body.userid;
+
+    const rows = await findByUserid(context);
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0]);
     } else {
-      res.status(200).send(usuario)
+      res.status(404).end();
     }
-  } catch (error) {
-    return res.status(500).json(err)
+  } catch (err) {
+    res.status(500).end();
   }
-}
-export const insertUsuario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  const passSalt = await bcrypt.genSalt(10)
-  const passHash = await bcrypt.hash(req.body.usuario.userid, passSalt)
-
-  // usuario
-  usuario.nombre = req.body.usuario.nomusu
-  usuario.oficina = req.body.usuario.ofiusu
-  usuario.rol = req.body.usuario.rolusu
-  usuario.userID = req.body.usuario.userid
-  usuario.email = req.body.usuario.emausu
-  usuario.perfil = req.body.usuario.perusu
-  usuario.telefono = req.body.usuario.telusu
-  usuario.password = passHash
-  usuario.estado = req.body.usuario.stausu
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
+};
+export const getUsuarioByEmail = async (req, res) => {
   try {
-    const { err, dat } = await usuario.insert()
+    const context = {};
 
-    if (err) {
-      res.status(404).json(err)
+    context.emausu = req.body.emausu;
+
+    const rows = await findByEmail(context);
+
+    if (context.emausu) {
+      if (rows.length === 1) {
+        res.status(200).json(rows[0]);
+      } else {
+        res.status(404).end();
+      }
     } else {
-      usuario.id = dat.p_idusua
-
-      res.status(200).json(usuario)
+      res.status(402).end();
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end();
   }
-}
-export const updateUsuario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  usuario.id = req.body.usuario.idusua
-  usuario.nombre = req.body.usuario.nomusu
-  usuario.oficina = req.body.usuario.ofiusu
-  usuario.rol = req.body.usuario.rolusu
-  usuario.userID = req.body.usuario.userid
-  usuario.email = req.body.usuario.emausu
-  usuario.perfil = req.body.usuario.perusu
-  usuario.telefono = req.body.usuario.telusu
-  usuario.estado = req.body.usuario.stausu
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
+};
+export const insertUsuario = async (req, res, next) => {
   try {
-    const { err, dat } = await usuario.update()
+    let usuario = getUsuarioFromRec(req);
+    usuario.movimiento = {
+      usumov: req.body.movimiento.usuarioMov,
+      tipmov: req.body.movimiento.tipoMov,
+    };
+    usuario = await insert(usuario);
 
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(200).json(usuario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    res.status(201).json(usuario);
+  } catch (err) {
+    next(err);
   }
-}
-export const deleteUsuario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // usuario
-  usuario.id = req.body.usuario.idusua
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
+};
+export const updateUsuario = async (req, res, next) => {
   try {
-    const { err, dat } = await usuario.delete()
+    let usuario = getUsuarioFromRec(req);
+    usuario.movimiento = {
+      usumov: req.body.movimiento.usuarioMov,
+      tipmov: req.body.movimiento.tipoMov,
+    };
+    usuario = await update(usuario);
 
-    if (err) {
-      res.status(404).json({ err })
+    if (usuario !== null) {
+      res.status(200).json(usuario);
     } else {
-      res.status(200).json(usuario)
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    next(err);
   }
-}
-export const cambioPassword = async (req, res) => {
-  const { id, password } = req.body.usuario
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  const passSalt = await bcrypt.genSalt(10)
-  const passHash = await bcrypt.hash(password, passSalt)
-
-  usuario.id = id
-  usuario.password = passHash
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
+};
+export const deleteUsuario = async (req, res, next) => {
   try {
-    const { err, dat } = await usuario.cambioPassword()
+    let usuario = getUsuarioFromRec(req);
+    usuario.movimiento = {
+      usumov: req.body.movimiento.usuarioMov,
+      tipmov: req.body.movimiento.tipoMov,
+    };
+    const success = await remove(usuario);
 
-    if (err) {
-      res.status(404).json(err)
+    if (success) {
+      res.status(204).end();
     } else {
-      res.status(200).json(usuario)
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    next(err);
   }
-}
-export const updatePerfil = async (req, res) => {
-  const { id, nombre, email, telefono } = req.body.usuario
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  usuario.id = id
-  usuario.nombre = nombre
-  usuario.email = email
-  usuario.telefono = telefono
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await usuario.updatePerfil()
-
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(200).json(usuario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
+};
