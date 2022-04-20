@@ -13,6 +13,8 @@ import {
   getUsuario,
   registroUsuario,
   cambioPasswordUsuario,
+  olvidoPasswordUsuario,
+  perfilUsuario,
 } from '../controllers/usuario.controller'
 
 const apiRouter = express.Router()
@@ -25,6 +27,8 @@ apiRouter.post('/usuarios/update', updateUsuario)
 apiRouter.post('/usuarios/delete', deleteUsuario)
 apiRouter.post('/usuarios/registro', registroUsuario)
 apiRouter.post('/usuarios/cambio', cambioPasswordUsuario)
+apiRouter.post('/usuarios/forgot', olvidoPasswordUsuario)
+apiRouter.post('/usuarios/perfil', perfilUsuario)
 // oficinas
 apiRouter.get('/oficinas/:id?', getOficinas)
 apiRouter.post('/oficinas/insert', insertOficina)
