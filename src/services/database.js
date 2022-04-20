@@ -11,24 +11,27 @@ const close = async () => {
 };
 module.exports.close = close;
 
-const simpleExecute = async (sql, binds = [], opts = {}) => {
-  let conn;
+const simpleExecute = (sql, binds = [], opts = {}) => {
+  return new Promise(async (resolve, reject) => {
+    let conn;
 
-  try {
-    conn = await oracledb.getConnection();
-    const result = await conn.execute(sql, binds, opts);
+    try {
+      conn = await oracledb.getConnection();
+      const result = await conn.execute(sql, binds, opts);
 
-    return result;
-  } catch (err) {
-    console.error(err);
-  } finally {
-    if (conn) {
-      try {
-        await conn.close();
-      } catch (err) {
-        console.error(err);
+      // return result;
+      resolve(result);
+    } catch (err) {
+      reject(err);
+    } finally {
+      if (conn) {
+        try {
+          await conn.close();
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
-  }
+  });
 };
 module.exports.simpleExecute = simpleExecute;
