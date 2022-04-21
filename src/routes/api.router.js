@@ -1,4 +1,5 @@
 import express from 'express'
+import { getFormularios } from '../controllers/formulario.controller'
 import {
   deleteOficina,
   getOficinas,
@@ -19,6 +20,8 @@ import {
 
 const apiRouter = express.Router()
 
+// formularios
+apiRouter.post('/formularios', getFormularios)
 // usuarios
 apiRouter.get('/usuarios/:id?', getUsuarios)
 apiRouter.post('/usuario', getUsuario)
