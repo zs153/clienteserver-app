@@ -1,289 +1,221 @@
-import Formulario from '../models/formulario.model'
-import Usuario from '../models/usuario.model'
-import SMS from '../models/sms.model'
-import bcrypt from 'bcrypt'
+import {
+  find,
+  findByEmail,
+  findByUserid,
+  insert,
+  update,
+  remove,
+  registro,
+  cambio,
+  olvido,
+  perfil,
+} from "../models/formulario.model";
 
 export const getFormularios = async (req, res) => {
-  const formulario = new Formulario()
-  formulario.estado = req.body.documento.stadoc
-  formulario.liquidador = req.body.documento.liqdoc
-
   try {
-    const { err, dat } = await formulario.getFormularios()
+    const context = {};
 
-    if (err) {
-      return res.status(404).json({ err })
+    context.id = parseInt(req.params.id, 10);
+    context.stat = parseInt(req.params.stat, 10);
+
+    const rows = await find(context);
+
+    if (req.params.id) {
+      if (rows.length === 1) {
+        res.status(200).json(rows[0]);
+      } else {
+        res.status(404).end();
+      }
     } else {
-      return res.status(200).json({ dat })
+      res.status(200).json(rows);
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(400).end();
   }
-}
-export const getFormulario = async (req, res) => {
-  const formulario = new Formulario()
-  formulario.id = req.body.id
-
-  try {
-    const { err, dat } = await formulario.getFormulario()
-
-    if (err) {
-      res.status(404).send(err)
-    } else {
-      res.status(200).send(formulario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
+};
 export const getFormularioByRef = async (req, res) => {
-  const formulario = new Formulario()
-  formulario.referencia = req.body.referencia
-
   try {
-    const { err, dat } = await formulario.getFormularioByRef()
+    const context = {};
 
-    if (err) {
-      res.status(404).send(err)
+    context.ref = req.body.refdoc;
+
+    const rows = await findByRef(context);
+
+    if (context.refdoc) {
+      if (rows.length === 1) {
+        res.status(200).json(rows[0]);
+      } else {
+        res.status(404).end();
+      }
     } else {
-      res.status(200).send(formulario)
+      res.status(402).end();
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};
+const insertFromRec = (req) => {
+  let doc = {
+    fecdoc: req.body.fecdoc,
+    nifcon: req.body.nifcon,
+    nomcon: req.body.nomcon,
+    emacon: req.body.emacon,
+    telcon: req.body.telcon,
+    movcon: req.body.movcon,
+    refdoc: req.body.refdoc,
+    tipdoc: req.body.tipdoc,
+    ejedoc: req.body.ejedoc,
+    ofidoc: req.body.ofidoc,
+    obsdoc: req.body.obsdoc,
+    fundoc: req.body.fundoc,
+    liqdoc: req.body.liqdoc,
+    stadoc: req.body.stadoc,
+  };
+  doc.movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return doc;
+};
 export const insertFormulario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const formulario = new Formulario()
-
-  // formulario
-  formulario.fecha = req.body.documento.fecdoc
-  formulario.nif = req.body.documento.nifcon
-  formulario.nombre = req.body.documento.nomcon
-  formulario.email = req.body.documento.emacon
-  formulario.telefono = req.body.documento.telcon
-  formulario.movil = req.body.documento.movcon
-  formulario.referencia = req.body.documento.refdoc
-  formulario.tipo = req.body.documento.tipdoc
-  formulario.ejercicio = req.body.documento.ejedoc
-  formulario.oficina = req.body.documento.ofidoc
-  formulario.observaciones = req.body.documento.obsdoc
-  formulario.funcionario = req.body.documento.fundoc
-  formulario.liquidador = req.body.documento.liqdoc
-  formulario.estado = req.body.documento.stadoc
-  // movimiento
-  formulario.movimiento.usuario = usuarioMov
-  formulario.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await formulario.insert()
+    let documento = insertFromRec(req);
+    documento = await insert(documento);
 
-    if (err) {
-      res.status(408).json(err)
-    } else {
-      res.status(200).json(formulario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    res.status(200).json(documento);
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};
+const updateFromRec = (req) => {
+  let doc = {
+    iddocu: req.body.iddocu,
+    fecdoc: req.body.fecdoc,
+    nifcon: req.body.nifcon,
+    nomcon: req.body.nomcon,
+    emacon: req.body.emacon,
+    telcon: req.body.telcon,
+    movcon: req.body.movcon,
+    refdoc: req.body.refdoc,
+    tipdoc: req.body.tipdoc,
+    ejedoc: req.body.ejedoc,
+    ofidoc: req.body.ofidoc,
+    obsdoc: req.body.obsdoc,
+    fundoc: req.body.fundoc,
+    liqdoc: req.body.liqdoc,
+    stadoc: req.body.stadoc,
+  };
+  doc.movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return doc;
+};
 export const updateFormulario = async (req, res) => {
-  const formulario = new Formulario()
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // formulario
-  formulario.id = req.body.documento.iddocu
-  formulario.fecha = req.body.documento.fecdoc
-  formulario.nif = req.body.documento.nifcon
-  formulario.nombre = req.body.documento.nomcon
-  formulario.email = req.body.documento.emacon
-  formulario.telefono = req.body.documento.telcon
-  formulario.movil = req.body.documento.movcon
-  formulario.tipo = req.body.documento.tipdoc
-  formulario.ejercicio = req.body.documento.ejedoc
-  formulario.oficina = req.body.documento.ofidoc
-  formulario.observaciones = req.body.documento.obsdoc
-  // movimiento
-  formulario.movimiento.usuario = usuarioMov
-  formulario.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await formulario.update()
+    let documento = updateFromRec(req);
+    documento = await update(documento);
 
-    if (err) {
-      res.status(403).json(err)
+    if (documento !== null) {
+      res.status(200).json(documento);
     } else {
-      res.status(200).json(formulario)
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};
+const deleteFromRec = (req) => {
+  let doc = {
+    iddocu: req.body.documento.iddocu,
+  };
+  doc.movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return doc;
+};
 export const deleteFormulario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  const formulario = new Formulario()
-  // formulario
-  formulario.id = req.body.documento.id
-  // movimiento
-  formulario.movimiento.usuario = usuarioMov
-  formulario.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await formulario.delete()
+    const documento = deleteFromRec(req);
+    const success = await remove(documento);
 
-    if (err) {
-      res.status(403).json(err)
+    if (success) {
+      res.status(200).end();
     } else {
-      res.status(200).json(formulario)
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end();
   }
-}
+};
+const cambioFromRec = (req) => {
+  let doc = {
+    iddocu: req.body.documento.iddocu,
+    liqdoc: req.body.documento.liqdoc,
+    stadoc: req.body.documento.stadoc,
+  };
+  doc.movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return doc;
+};
 export const cambioEstado = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const { id, liquidador, estado } = req.body.documento
-  const formulario = new Formulario()
-
-  // formulario
-  formulario.id = id
-  formulario.liquidador = liquidador
-  formulario.estado = estado
-  // movimiento
-  formulario.movimiento.usuario = usuarioMov
-  formulario.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await formulario.cambioEstado()
+    const documento = cambioFromRec(req);
 
-    if (err) {
-      res.status(403).json(err)
-    } else {
-      res.status(200).json(formulario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    await cambioEstado(documento);
+    res.status(200).end();
+  } catch (err) {
+    res.status(403).end();
   }
-}
+};
+const estadisticaFromRec = (req) => {
+  let doc = {
+    desper: req.body.periodo.desper,
+    hasper: req.body.periodo.hasper,
+  };
+
+  return doc;
+};
 export const estadisticaFormularios = async (req, res) => {
-  const { desde, hasta } = req.body.periodo
-  const formulario = new Formulario()
-  formulario.periodo = {
-    desde,
-    hasta,
-  }
-
   try {
-    const { err, dat } = await formulario.estadistica()
+    const documento = estadisticaFromRec(req);
 
-    if (err) {
-      return res.status(404).json(err)
-    } else {
-      return res.status(200).json(dat)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    await estadistica(documento);
+    res.status(200).end();
+  } catch (err) {
+    res.status(403).end();
   }
-}
-export const cambioPasswordFormulario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const passSalt = await bcrypt.genSalt(10)
-  const passHash = await bcrypt.hash(req.body.usuario.password, passSalt)
-  const usuario = new Usuario()
+};
+const smsFromRec = (req) => {
+  let doc = {
+    iddocu: req.body.periodo.iddocu,
+  };
+  doc.sms = {
+    texsms: req.body.periodo.texsms,
+    movsms: req.body.periodo.movsms,
+    stasms: req.body.periodo.stasms,
+  };
+  doc.movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
 
-  usuario.id = req.body.usuario.id
-  usuario.password = passHash
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
+  return doc;
+};
+export const smsFormularios = async (req, res) => {
   try {
-    const { err, dat } = await usuario.cambioPassword()
+    let documento = smsFromRec(req);
+    documento = await sms(documento);
 
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(200).json(usuario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    res.status(200).json(documento);
+  } catch (err) {
+    res.status(403).end();
   }
-}
-export const updatePerfilFormulario = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const usuario = new Usuario()
-
-  usuario.id = req.body.usuario.id
-  usuario.nombre = req.body.usuario.nombre
-  usuario.email = req.body.usuario.email
-  usuario.telefono = req.body.usuario.telefono
-  usuario.oficina = req.body.usuario.oficina
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await usuario.updatePerfil()
-
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(200).json(usuario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const sms = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const sms = new SMS()
-
-  // sms
-  sms.texto = req.body.sms.texsms
-  sms.movil = req.body.sms.movsms
-  sms.estado = req.body.sms.stasms
-  // documento
-  sms.idDocumento = req.body.sms.iddocu
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await sms.insert()
-
-    if (err) {
-      res.status(403).json(err)
-    } else {
-      res.status(200).json(sms)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const referenciaSms = async (req, res) => {
-  const { referencia } = req.body.referencia
-  const sms = new SMS()
-
-  // sms
-  sms.texto = req.body.sms.texto
-  sms.movil = req.body.sms.movil
-  sms.estado = req.body.sms.estado
-  // documento
-  sms.idDocumento = req.body.sms.idDocumento
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await sms.insert()
-
-    if (err) {
-      res.status(403).json(err)
-    } else {
-      res.status(200).json(sms)
-    }
-  } catch (error) {
-    res.status(500).json('No se ha podido insertar el mensaje sms')
-  }
-}
+};
