@@ -6,26 +6,30 @@ import {
   remove,
   cambio,
   estadistica,
+  findByStatAndLiq,
 } from '../models/formulario.model'
 
+export const getFormulario = async (req, res) => {
+  try {
+    const context = {}
+    context.iddocu = parseInt(req.body.formulario.iddocu, 10)
+
+    const rows = await findById(context)
+
+    res.status(200).json(rows)
+  } catch (err) {
+    res.status(400).end()
+  }
+}
 export const getFormularios = async (req, res) => {
   try {
     const context = {}
+    context.stadoc = parseInt(req.body.formulario.stadoc, 10)
+    context.liqdoc = req.body.formulario.liqdoc
 
-    context.id = parseInt(req.params.id, 10)
-    context.stat = parseInt(req.params.stat, 10)
-    console.log(context)
-    // const rows = await find(context)
+    const rows = await find(context)
 
-    // if (req.params.id) {
-    //   if (rows.length === 1) {
-    //     res.status(200).json(rows[0])
-    //   } else {
-    //     res.status(404).end()
-    //   }
-    // } else {
-    //   res.status(200).json(rows)
-    // }
+    res.status(200).json(rows)
   } catch (err) {
     res.status(400).end()
   }
@@ -33,8 +37,7 @@ export const getFormularios = async (req, res) => {
 export const getFormularioByRef = async (req, res) => {
   try {
     const context = {}
-
-    context.ref = req.body.refdoc
+    context.refdoc = req.body.formulario.refdoc
 
     const rows = await findByRef(context)
 
@@ -77,10 +80,10 @@ const insertFromRec = (req) => {
 }
 export const insertFormulario = async (req, res) => {
   try {
-    let documento = insertFromRec(req)
-    documento = await insert(documento)
+    let formulario = insertFromRec(req)
+    formulario = await insert(formulario)
 
-    res.status(200).json(documento)
+    res.status(200).json(formulario)
   } catch (err) {
     res.status(500).end()
   }
@@ -112,11 +115,11 @@ const updateFromRec = (req) => {
 }
 export const updateFormulario = async (req, res) => {
   try {
-    let documento = updateFromRec(req)
-    documento = await update(documento)
+    let formulario = updateFromRec(req)
+    formulario = await update(formulario)
 
-    if (documento !== null) {
-      res.status(200).json(documento)
+    if (formulario !== null) {
+      res.status(200).json(formulario)
     } else {
       res.status(404).end()
     }

@@ -29,24 +29,30 @@ const largeQuery = `
   FROM documentos
   INNER JOIN tipos tt ON tt.idtipo = dd.tipdoc
   INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
+  WHERE stadoc <= :stadoc
 `
 export const find = async (context) => {
+  let query = largeQuery
+  let binds = {}
+
+  binds.stadoc = context.stadoc
+  binds.liqdoc = context.liqdoc
+  if (context.liqdoc !== 'ADMIN') {
+    query += `\nAND liqdoc = :liqdoc`
+  }
+  query += `\nORDER BY dd.idofic, dd.fecdoc`
+
+  const result = await simpleExecute(query, binds)
+  return result.rows
+}
+export const findById = async (context) => {
   let query = baseQuery
   let binds = {}
 
-  if (context.id) {
-    binds.iddocu = context.id
+  if (context.userid) {
+    binds.refdoc = context.ref
 
     query += `\nWHERE iddocu = :iddocu`
-  } else {
-    query = largeQuery
-
-    if (context.stat) {
-      binds.stadoc = context.stat
-
-      query += `\nWHERE dd.stadoc <= :stadoc 
-        ORDER BY dd.idofic, dd.fecdoc`
-    }
   }
 
   const result = await simpleExecute(query, binds)
@@ -57,7 +63,7 @@ export const findByRef = async (context) => {
   let binds = {}
 
   if (context.userid) {
-    binds.refdoc = context.ref
+    binds.refdoc = context.refdoc
 
     query += `\nWHERE refdoc = :refdoc`
   }
