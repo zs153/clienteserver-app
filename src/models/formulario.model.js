@@ -1,10 +1,9 @@
-import oracledb from 'oracledb'
-import { simpleExecute } from '../services/database.js'
+import oracledb from "oracledb";
+import { simpleExecute } from "../services/database.js";
 
-const baseQuery = `
-  SELECT 
+const baseQuery = `SELECT 
     iddocu,
-    TO_CHAR(fecdoc, 'YYYY-MM-DD') "strfec",
+    TO_CHAR(fecdoc, 'YYYY-MM-DD') "STRFEC",
     nifcon,
     nomcon,
     emacon,
@@ -18,59 +17,52 @@ const baseQuery = `
     fundoc,
     liqdoc,
     stadoc
-  FROM documentos
-`
-const largeQuery = `
-  SELECT 
+  FROM documentos`;
+const largeQuery = `SELECT 
     oo.desofi,
     tt.destip,
     dd.*,
-    TO_CHAR(dd.fecdoc, 'YYYY-MM-DD') "strfec"
-  FROM documentos
+    TO_CHAR(dd.fecdoc, 'YYYY-MM-DD') "STRFEC"
+  FROM documentos dd
   INNER JOIN tipos tt ON tt.idtipo = dd.tipdoc
   INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
-  WHERE stadoc <= :stadoc
-`
+  WHERE dd.stadoc <= :stadoc
+  ORDER BY dd.ofidoc, dd.fecdoc`;
 export const find = async (context) => {
-  let query = largeQuery
-  let binds = {}
+  let query = largeQuery;
+  let binds = {};
 
-  binds.stadoc = context.stadoc
-  binds.liqdoc = context.liqdoc
-  if (context.liqdoc !== 'ADMIN') {
-    query += `\nAND liqdoc = :liqdoc`
-  }
-  query += `\nORDER BY dd.idofic, dd.fecdoc`
+  binds.stadoc = context.stadoc;
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 export const findById = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = baseQuery;
+  let binds = {};
 
-  if (context.userid) {
-    binds.refdoc = context.ref
+  if (context.iddocu) {
+    binds.iddocu = context.iddocu;
 
-    query += `\nWHERE iddocu = :iddocu`
+    query += `\nWHERE iddocu = :iddocu`;
   }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 export const findByRef = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = baseQuery;
+  let binds = {};
 
-  if (context.userid) {
-    binds.refdoc = context.refdoc
+  if (context.refdoc) {
+    binds.refdoc = context.refdoc;
 
-    query += `\nWHERE refdoc = :refdoc`
+    query += `\nWHERE refdoc = :refdoc`;
   }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 const insertSql = `
   BEGIN FORMULARIOS_PKG.INSERTDOCUMENTO(
     :fecdoc, 
@@ -91,21 +83,21 @@ const insertSql = `
     :tipmov,
     :iddocu
   ); END;
-`
+`;
 export const insert = async (doc) => {
-  const bind = Object.assign({}, doc)
+  const bind = Object.assign({}, doc);
 
   bind.iddocu = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
-  }
+  };
 
-  const result = await simpleExecute(insertSql, bind)
+  const result = await simpleExecute(insertSql, bind);
 
-  bind.iddocu = result.outBinds.iddocu[0]
+  bind.iddocu = result.outBinds.iddocu[0];
 
-  return bind
-}
+  return bind;
+};
 const updateSql = `
   BEGIN FORMULARIOS_PKG.UPDATEDOCUMENTO(
     :iddocu,
@@ -124,32 +116,32 @@ const updateSql = `
     :liqdoc,
     :stadoc,
     :usumov,
-    :tipmov,
+    :tipmov
   ); END;
-`
+`;
 export const update = async (doc) => {
-  const bind = Object.assign({}, doc)
-  const result = await simpleExecute(updateSql, bind)
+  const bind = Object.assign({}, doc);
+  const result = await simpleExecute(updateSql, bind);
 
   if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind
+    return bind;
   } else {
-    return null
+    return null;
   }
-}
+};
 const removeSql = `
   BEGIN FORMULARIOS_PKG.DELETEDOCUMENTO(
     :iddocu,
     :usumov,
     :tipmov 
   ); END;
-`
+`;
 export const remove = async (doc) => {
-  const bind = Object.assign({}, doc)
-  const result = await simpleExecute(removeSql, bind)
+  const bind = Object.assign({}, doc);
+  const result = await simpleExecute(removeSql, bind);
 
-  return result.outBinds.rowcount === 1
-}
+  return result.outBinds.rowcount === 1;
+};
 const estadisticaSql = `
   SELECT 
     desofi,
@@ -167,13 +159,13 @@ const estadisticaSql = `
   INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
   GROUP BY desofi
   ORDER BY desofi
-`
+`;
 export const estadistica = async (doc) => {
-  const bind = Object.assign({}, doc)
-  const result = await simpleExecute(removeSql, bind)
+  const bind = Object.assign({}, doc);
+  const result = await simpleExecute(removeSql, bind);
 
-  return result
-}
+  return result;
+};
 const cambioSql = `
   BEGIN FORMULARIOS_PKG.CAMBIOESTADOFORMULARIO(
     :iddocu,
@@ -182,14 +174,14 @@ const cambioSql = `
     :usumov,
     :tipmov 
   ); END;
-`
+`;
 export const cambio = async (doc) => {
-  const bind = Object.assign({}, doc)
-  const result = await simpleExecute(cambioSql, bind)
+  const bind = Object.assign({}, doc);
+  const result = await simpleExecute(cambioSql, bind);
 
   if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind
+    return bind;
   } else {
-    return null
+    return null;
   }
-}
+};
