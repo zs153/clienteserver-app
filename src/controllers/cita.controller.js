@@ -1,17 +1,9 @@
-import {
-  find,
-  insert,
-  update,
-  remove,
-  cambio,
-  estadistica,
-  findByStatAndLiq,
-} from "../models/cita.model";
+import { find, insert, update, remove, findById } from "../models/cita.model";
 
 export const getCita = async (req, res) => {
   try {
     const context = {};
-    context.idcita = req.body.cita.idcita;
+    context.idcita = req.body.idcita;
 
     const rows = await findById(context);
 
@@ -24,6 +16,7 @@ export const getCitas = async (req, res) => {
   try {
     const context = {};
     context.stacit = req.body.cita.stacit;
+    context.oficit = req.body.cita.oficit;
 
     const rows = await find(context);
 
@@ -53,7 +46,7 @@ const insertFromRec = (req) => {
 
   return doc;
 };
-export const insertcita = async (req, res) => {
+export const insertCita = async (req, res) => {
   try {
     let cita = insertFromRec(req);
     cita = await insert(cita);
@@ -66,28 +59,17 @@ export const insertcita = async (req, res) => {
 const updateFromRec = (req) => {
   let doc = {
     idcita: req.body.cita.idcita,
-    orgcit: req.body.cita.orgcit,
-    oficit: req.body.cita.oficit,
-    feccit: req.body.cita.feccit,
-    horcit: req.body.cita.horcit,
-    nifcon: req.body.cita.nifcon,
-    nomcon: req.body.cita.nomcon,
-    telcon: req.body.cita.telcon,
-    descit: req.body.cita.descit,
-    notcit: req.body.cita.notcit,
     obscit: req.body.cita.obscit,
-    stacit: req.body.cita.stacit,
-  };
-  doc.movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   };
 
   return doc;
 };
-export const updatecita = async (req, res) => {
+export const updateCita = async (req, res) => {
   try {
     let cita = updateFromRec(req);
+
     cita = await update(cita);
 
     if (cita !== null) {
@@ -110,7 +92,7 @@ const deleteFromRec = (req) => {
 
   return doc;
 };
-export const deletecita = async (req, res) => {
+export const deleteCita = async (req, res) => {
   try {
     const cita = deleteFromRec(req);
     const success = await remove(cita);

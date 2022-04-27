@@ -22,10 +22,8 @@ const simpleExecute = (sql, binds = [], opts = {}) => {
       conn = await oracledb.getConnection();
       const result = await conn.execute(sql, binds, opts);
 
-      //return result
       resolve(result);
     } catch (err) {
-      //return err
       reject(err);
     } finally {
       if (conn) {

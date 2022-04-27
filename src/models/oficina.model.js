@@ -11,16 +11,21 @@ const baseQuery = `
 `;
 export const find = async (context) => {
   let query = baseQuery;
+
+  const result = await simpleExecute(query);
+  return result.rows;
+};
+export const findById = async (context) => {
+  let query = baseQuery;
   let binds = {};
 
-  if (context.id) {
-    binds.idofic = context.id;
-
-    query += `\nWHERE idofic = :idofic`;
+  if (context.idofic) {
+    binds.idofic = context.idofic;
+    query += `WHERE idofic = :idofic`;
   }
 
-  const result = await simpleExecute(query, binds, { outFormat });
-  return result.rows;
+  const result = await simpleExecute(query, binds);
+  return result.rows[0];
 };
 
 const insertSql = `

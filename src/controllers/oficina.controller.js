@@ -9,25 +9,25 @@ const getOficinaFromRec = (req) => {
 
   return Oficina;
 };
-export const getOficinas = async (req, res) => {
+export const getOficina = async (req, res) => {
   try {
     const context = {};
+    context.idofic = req.body.idofic;
 
-    context.id = parseInt(req.params.id, 10);
+    const rows = await findById(context);
 
-    const rows = await find(context);
-
-    if (req.params.id) {
-      if (rows.length === 1) {
-        res.status(200).json(rows[0]);
-      } else {
-        res.status(404).end();
-      }
-    } else {
-      res.status(200).json(rows);
-    }
+    res.status(200).json(rows);
   } catch (err) {
-    res.status(500).end();
+    res.status(400).end();
+  }
+};
+export const getOficinas = async (req, res) => {
+  try {
+    const rows = await find();
+
+    res.status(200).json(rows);
+  } catch (err) {
+    res.status(400).end();
   }
 };
 

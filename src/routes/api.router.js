@@ -1,11 +1,12 @@
 import express from "express";
-import { getCita, getCitas } from "../controllers/cita.controller";
+import { getCita, getCitas, updateCita } from "../controllers/cita.controller";
 import {
   getFormulario,
   getFormularios,
 } from "../controllers/formulario.controller";
 import {
   deleteOficina,
+  getOficina,
   getOficinas,
   insertOficina,
   updateOficina,
@@ -27,6 +28,7 @@ const apiRouter = express.Router();
 // citas
 apiRouter.post("/citas", getCitas);
 apiRouter.post("/cita", getCita);
+apiRouter.post("/citas/update", updateCita);
 // formularios
 apiRouter.post("/formularios", getFormularios);
 apiRouter.post("/formulario", getFormulario);
@@ -41,7 +43,8 @@ apiRouter.post("/usuarios/cambio", cambioPasswordUsuario);
 apiRouter.post("/usuarios/forgot", olvidoPasswordUsuario);
 apiRouter.post("/usuarios/perfil", perfilUsuario);
 // oficinas
-apiRouter.get("/oficinas/:id?", getOficinas);
+apiRouter.post("/oficinas", getOficinas);
+apiRouter.post("/oficina", getOficina);
 apiRouter.post("/oficinas/insert", insertOficina);
 apiRouter.post("/oficinas/update", updateOficina);
 apiRouter.post("/oficinas/delete", deleteOficina);

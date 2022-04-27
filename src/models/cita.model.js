@@ -2,19 +2,33 @@ import oracledb from "oracledb";
 import { simpleExecute } from "../services/database.js";
 
 const baseQuery = `SELECT 
+  cc.*,TO_CHAR(cc.feccit,'DD/MM/YYYY') "STRFEC",
+  oo.desofi
+  FROM citas cc
+  INNER JOIN oficinas oo ON oo.idofic = cc.oficit
+  WHERE cc.idcita = :idcita`;
+const largeQuery = `SELECT 
   cc.*,oo.desofi,TO_CHAR(cc.feccit,'DD/MM/YYYY') "STRFEC",
   CASE WHEN gg.nifcog IS NULL THEN 'Sí' ELSE 'No' END "COMPLE" FROM citas cc
   INNER JOIN oficinas oo ON oo.idofic = cc.oficit
   LEFT JOIN cognos gg ON gg.nifcog = cc.nifcon
   WHERE cc.stacit <= :stacit AND 
     cc.feccit BETWEEN TRUNC(SYSDATE) +8/24 AND TRUNC(SYSDATE) +1 +20/24
-  ORDER BY cc.oficit, cc.feccit, cc.horcit`;
+`;
 
 export const find = async (context) => {
-  let query = baseQuery;
+  let query = largeQuery;
   let binds = {};
 
+  if (context.oficit !== "-1") {
+    query += `AND cc.oficit = :oficit ORDER BY cc.oficit, cc.feccit, cc.horcit`;
+    binds.oficit = context.oficit;
+  } else {
+    query += `ORDER BY cc.oficit, cc.feccit, cc.horcit`;
+  }
+
   binds.stacit = context.stacit;
+  console.log(query, binds);
   const result = await simpleExecute(query, binds);
 
   return result.rows;
@@ -23,14 +37,10 @@ export const findById = async (context) => {
   let query = baseQuery;
   let binds = {};
 
-  if (context.idcita) {
-    binds.idcita = context.idcita;
-
-    query += `\nWHERE idcita = :idcita`;
-  }
+  binds.idcita = context.idcita;
 
   const result = await simpleExecute(query, binds);
-  return result.rows;
+  return result.rows[0];
 };
 const insertSql = `
   BEGIN FORMULARIOS_PKG.INSERTCITA(
@@ -67,30 +77,24 @@ export const insert = async (doc) => {
 const updateSql = `
   BEGIN FORMULARIOS_PKG.UPDATECITA(
     :idcita,
-    :orgcit, 
-    :oficit, 
-    :feccit, 
-    :horcit, 
-    :nifcon, 
-    :nomcon, 
-    :telcon, 
-    :descit, 
-    :notcit, 
     :obscit, 
-    :stacir,
     :usumov,
     :tipmov
   ); END;
 `;
 export const update = async (doc) => {
   const bind = Object.assign({}, doc);
-  const result = await simpleExecute(updateSql, bind);
+  let result;
 
-  if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind;
-  } else {
-    return null;
+  try {
+    await simpleExecute(updateSql, bind);
+
+    result = bind;
+  } catch (error) {
+    result = error;
   }
+
+  return result;
 };
 const removeSql = `
   BEGIN FORMULARIOS_PKG.DELETECITA(
