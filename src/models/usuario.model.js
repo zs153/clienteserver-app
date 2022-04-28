@@ -14,19 +14,38 @@ const baseQuery = `
     pwdusu,
     stausu
   FROM usuarios
+`;
+const largeQuery = `
+  SELECT 
+    uu.idusua,
+    uu.nomusu,
+    uu.ofiusu,
+    uu.rolusu,
+    uu.userid,
+    uu.emausu,
+    uu.perusu,
+    uu.telusu,
+    uu.pwdusu,
+    uu.stausu,
+    oo.desofi
+  FROM usuarios uu
   INNER JOIN oficinas oo ON oo.idofic = ofiusu
 `;
 export const find = async (context) => {
   let query = baseQuery;
   let binds = {};
 
-  if (context.id) {
-    binds.idusua = context.id;
+  binds.idusua = context.idusua;
 
-    query += `\nWHERE idusua = :idusua`;
-  }
+  query += `WHERE idusua = :idusua`;
 
   const result = await simpleExecute(query, binds);
+  return result.rows;
+};
+export const findAll = async () => {
+  let query = largeQuery;
+
+  const result = await simpleExecute(query);
   return result.rows;
 };
 export const findByUserid = async (context) => {
@@ -36,7 +55,7 @@ export const findByUserid = async (context) => {
   if (context.userid) {
     binds.userid = context.userid;
 
-    query += `\nWHERE userid = :userid`;
+    query += `WHERE userid = :userid`;
   }
 
   const result = await simpleExecute(query, binds);
@@ -49,7 +68,7 @@ export const findByEmail = async (context) => {
   if (context.emausu) {
     binds.emausu = context.emausu;
 
-    query += `\nWHERE emausu = :emausu`;
+    query += `WHERE emausu = :emausu`;
   }
 
   const result = await simpleExecute(query, binds);
@@ -58,33 +77,38 @@ export const findByEmail = async (context) => {
 
 const insertSql = `
   BEGIN FORMULARIOS_PKG.INSERTUSUARIO(
-    :nomusu, 
-    :ofiusu, 
-    :rolusu, 
-    :userid, 
-    :emausu, 
-    :perusu, 
-    :telusu, 
-    :pwdusu, 
-    :stausu, 
-    :usumov, 
+    :nomusu,
+    :ofiusu,
+    :rolusu,
+    :userid,
+    :emausu,
+    :perusu,
+    :telusu,
+    :pwdusu,
+    :stausu,
+    :usumov,
     :tipmov,
     :idusua
   ); END;
 `;
-export const insert = async (user) => {
-  const bind = Object.assign({}, user);
+export const insert = async (bind) => {
+  let result;
 
   bind.idusua = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   };
 
-  const result = await simpleExecute(insertSql, bind);
+  try {
+    result = await simpleExecute(insertSql, bind);
 
-  bind.idusua = result.outBinds.idusua[0];
+    bind.idusua = await result.outBinds.idusua;
+    result = bind;
+  } catch (error) {
+    result = null;
+  }
 
-  return bind;
+  return result;
 };
 
 const updateSql = `
@@ -97,20 +121,18 @@ const updateSql = `
     :emausu, 
     :perusu, 
     :telusu, 
-    :pwdusu, 
     :stausu, 
     :usumov, 
     :tipmov
   ); END;
 `;
-export const update = async (user) => {
-  const bind = Object.assign({}, user);
-  const result = await simpleExecute(updateSql, bind);
+export const update = async (bind) => {
+  let result;
 
-  if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind;
-  } else {
-    return null;
+  try {
+    result = await simpleExecute(updateSql, bind);
+  } catch (error) {
+    result = null;
   }
 };
 
@@ -121,11 +143,17 @@ const removeSql = `
     :tipmov 
   ); END;
 `;
-export const remove = async (user) => {
-  const bind = Object.assign({}, user);
-  const result = await simpleExecute(removeSql, bind);
+export const remove = async (bind) => {
+  let result;
 
-  return result.outBinds.rowcount === 1;
+  try {
+    await simpleExecute(removeSql, bind);
+    result = bind;
+  } catch (error) {
+    result = null;
+  }
+
+  return result;
 };
 
 const registroSql = `

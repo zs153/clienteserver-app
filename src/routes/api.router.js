@@ -33,7 +33,7 @@ apiRouter.post("/citas/update", updateCita);
 apiRouter.post("/formularios", getFormularios);
 apiRouter.post("/formulario", getFormulario);
 // usuarios
-apiRouter.get("/usuarios/:id?", getUsuarios);
+apiRouter.post("/usuarios", getUsuarios);
 apiRouter.post("/usuario", getUsuario);
 apiRouter.post("/usuarios/insert", insertUsuario);
 apiRouter.post("/usuarios/update", updateUsuario);
