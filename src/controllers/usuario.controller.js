@@ -72,6 +72,7 @@ export const getUsuario = async (req, res) => {
     context.userid = req.body.userid;
 
     const rows = await findByUserid(context);
+
     if (rows.length === 1) {
       return res.status(200).json(rows[0]);
     } else {
