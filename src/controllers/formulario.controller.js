@@ -1,60 +1,18 @@
 import {
   find,
+  findAll,
+  findByLiq,
   findByRef,
   insert,
   update,
   remove,
-  cambio,
-  estadistica,
-  findByStatAndLiq,
-} from "../models/formulario.model";
+  change,
+  stats,
+  insertSms,
+} from '../models/formulario.model'
 
-export const getFormulario = async (req, res) => {
-  try {
-    const context = {};
-    context.iddocu = parseInt(req.body.formulario.iddocu, 10);
-
-    const rows = await findById(context);
-
-    res.status(200).json(rows);
-  } catch (err) {
-    res.status(400).end();
-  }
-};
-export const getFormularios = async (req, res) => {
-  try {
-    const context = {};
-    context.stadoc = req.body.formulario.stadoc;
-
-    const rows = await find(context);
-
-    res.status(200).json(rows);
-  } catch (err) {
-    res.status(400).end();
-  }
-};
-export const getFormularioByRef = async (req, res) => {
-  try {
-    const context = {};
-    context.refdoc = req.body.formulario.refdoc;
-
-    const rows = await findByRef(context);
-
-    if (context.refdoc) {
-      if (rows.length === 1) {
-        res.status(200).json(rows[0]);
-      } else {
-        res.status(404).end();
-      }
-    } else {
-      res.status(402).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
 const insertFromRec = (req) => {
-  let doc = {
+  const formulario = {
     fecdoc: req.body.fecdoc,
     nifcon: req.body.nifcon,
     nomcon: req.body.nomcon,
@@ -69,26 +27,16 @@ const insertFromRec = (req) => {
     fundoc: req.body.fundoc,
     liqdoc: req.body.liqdoc,
     stadoc: req.body.stadoc,
-  };
-  doc.movimiento = {
+  }
+  const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const insertFormulario = async (req, res) => {
-  try {
-    let formulario = insertFromRec(req);
-    formulario = await insert(formulario);
-
-    res.status(200).json(formulario);
-  } catch (err) {
-    res.status(500).end();
   }
-};
+
+  return Object.assign(formulario, movimiento)
+}
 const updateFromRec = (req) => {
-  let doc = {
+  const formulario = {
     iddocu: req.body.iddocu,
     fecdoc: req.body.fecdoc,
     nifcon: req.body.nifcon,
@@ -104,117 +52,199 @@ const updateFromRec = (req) => {
     fundoc: req.body.fundoc,
     liqdoc: req.body.liqdoc,
     stadoc: req.body.stadoc,
-  };
-  doc.movimiento = {
+  }
+  const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const updateFormulario = async (req, res) => {
-  try {
-    let formulario = updateFromRec(req);
-    formulario = await update(formulario);
-
-    if (formulario !== null) {
-      res.status(200).json(formulario);
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
   }
-};
+
+  return Object.assign(formulario, movimiento)
+}
 const deleteFromRec = (req) => {
-  let doc = {
+  const formulario = {
     iddocu: req.body.documento.iddocu,
-  };
-  doc.movimiento = {
+  }
+  const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const deleteFormulario = async (req, res) => {
-  try {
-    const documento = deleteFromRec(req);
-    const success = await remove(documento);
-
-    if (success) {
-      res.status(200).end();
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
   }
-};
+
+  return Object.assign(formulario, movimiento)
+}
 const cambioFromRec = (req) => {
-  let doc = {
+  const formulario = {
     iddocu: req.body.documento.iddocu,
     liqdoc: req.body.documento.liqdoc,
     stadoc: req.body.documento.stadoc,
-  };
-  doc.movimiento = {
+  }
+  const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const cambioEstado = async (req, res) => {
-  try {
-    const documento = cambioFromRec(req);
-
-    await cambioEstado(documento);
-    res.status(200).end();
-  } catch (err) {
-    res.status(403).end();
   }
-};
+
+  return Object.assign(formulario, movimiento)
+}
 const estadisticaFromRec = (req) => {
-  let doc = {
+  const periodo = {
     desfec: req.body.periodo.desde,
     hasfec: req.body.periodo.hasta,
-  };
-
-  return doc;
-};
-export const estadisticaFormularios = async (req, res) => {
-  try {
-    const documento = estadisticaFromRec(req);
-
-    const result = await estadistica(documento);
-    res.status(200).json(result);
-  } catch (err) {
-    res.status(403).end();
   }
-};
+
+  return Object.assign({}, periodo)
+}
 const smsFromRec = (req) => {
-  let doc = {
-    iddocu: req.body.periodo.iddocu,
-  };
-  doc.sms = {
-    texsms: req.body.periodo.texsms,
-    movsms: req.body.periodo.movsms,
-    stasms: req.body.periodo.stasms,
-  };
-  doc.movimiento = {
+  const formulario = {
+    iddocu: req.body.sms.iddocu,
+  }
+  const sms = {
+    texsms: req.body.sms.texsms,
+    movsms: req.body.sms.movsms,
+    stasms: req.body.sms.stasms,
+  }
+  const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const smsFormularios = async (req, res) => {
-  try {
-    let documento = smsFromRec(req);
-    documento = await sms(documento);
-
-    res.status(200).json(documento);
-  } catch (err) {
-    res.status(403).end();
   }
-};
+
+  return Object.assign(sms, formulario, movimiento)
+}
+
+export const formulario = async (req, res) => {
+  try {
+    const context = {}
+    context.iddocu = req.body.iddocu
+
+    const rows = await find(context)
+
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0])
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const formularios = async (req, res) => {
+  try {
+    const context = {}
+    context.stadoc = req.body.formulario.stadoc
+
+    const rows = await findAll(context)
+
+    res.status(200).json(rows)
+  } catch (err) {
+    res.status(400).end()
+  }
+}
+export const formularioByRef = async (req, res) => {
+  try {
+    const context = {}
+    context.refdoc = req.body.formulario.refdoc
+
+    const rows = await findByRef(context)
+
+    if (rows.length === 1) {
+      res.status(200).json(rows[0])
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const formularioByLiquidador = async (req, res) => {
+  try {
+    const context = {}
+    context.liqdoc = req.body.formulario.liqdoc
+
+    const rows = await findByLiq(context)
+
+    if (rows.length === 1) {
+      res.status(200).json(rows[0])
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+
+export const add = async (req, res) => {
+  try {
+    const result = await insert(insertFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const mod = async (req, res) => {
+  try {
+    const result = await update(updateFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const del = async (req, res) => {
+  try {
+    const result = await remove(deleteFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const cambioEstado = async (req, res) => {
+  try {
+    const result = await change(cambioFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const estadisticas = async (req, res) => {
+  try {
+    const result = await stats(estadisticaFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const addSms = async (req, res) => {
+  try {
+    const result = await insertSms(smsFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(403).end()
+  }
+}

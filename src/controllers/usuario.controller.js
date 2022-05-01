@@ -5,11 +5,11 @@ import {
   insert,
   update,
   remove,
-  registro,
-  cambio,
-  olvido,
-  perfil,
-} from "../models/usuario.model";
+  register,
+  change,
+  forgot,
+  profile,
+} from '../models/usuario.model'
 
 const insertFromRec = (req) => {
   const usuario = {
@@ -22,10 +22,14 @@ const insertFromRec = (req) => {
     telusu: req.body.usuario.telusu,
     pwdusu: req.body.usuario.pwdusu,
     stausu: req.body.usuario.stausu,
-  };
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
 
-  return usuario;
-};
+  return Object.assign(usuario, movimiento)
+}
 const updateFromRec = (req) => {
   const usuario = {
     idusua: req.body.usuario.idusua,
@@ -37,116 +41,27 @@ const updateFromRec = (req) => {
     perusu: req.body.usuario.perusu,
     telusu: req.body.usuario.telusu,
     stausu: req.body.usuario.stausu,
-  };
-
-  return usuario;
-};
-const deleteFromRec = (req) => {
-  const usuario = {
-    idusua: req.body.usuario.idusua,
-  };
-
-  return usuario;
-};
-const movimientoFromRec = (req) => {
+  }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return movimiento;
-};
-export const getUsuarios = async (req, res) => {
-  try {
-    const rows = await findAll();
-
-    res.status(200).json(rows);
-  } catch (err) {
-    res.status(400).end();
   }
-};
-export const getUsuario = async (req, res) => {
-  try {
-    const context = {};
 
-    context.userid = req.body.userid;
-
-    const rows = await findByUserid(context);
-
-    if (rows.length === 1) {
-      return res.status(200).json(rows[0]);
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
-export const getUsuarioByEmail = async (req, res) => {
-  try {
-    const context = {};
-
-    context.emausu = req.body.emausu;
-
-    const rows = await findByEmail(context);
-
-    if (context.emausu) {
-      if (rows.length === 1) {
-        res.status(200).json(rows[0]);
-      } else {
-        res.status(404).end();
-      }
-    } else {
-      res.status(402).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
-export const insertUsuario = async (req, res) => {
-  try {
-    const doc = Object.assign(insertFromRec(req), movimientoFromRec(req));
-    const result = await insert(doc);
-
-    if (result !== null) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
-export const updateUsuario = async (req, res) => {
-  try {
-    const doc = Object.assign(updateFromRec(req), movimientoFromRec(req));
-    const result = await update(doc);
-
-    if (result !== null) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
-export const deleteUsuario = async (req, res) => {
-  try {
-    const doc = Object.assign(deleteFromRec(req), movimientoFromRec(req));
-    const result = await remove(doc);
-
-    if (result !== null) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
-const registroFromRec = (req) => {
+  return Object.assign(usuario, movimiento)
+}
+const deleteFromRec = (req) => {
   const usuario = {
+    idusua: req.body.usuario.idusua,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(usuario, movimiento)
+}
+const registroFromRec = (req) => {
+  const registro = {
     nomusu: req.body.usuario.nomusu,
     ofiusu: req.body.usuario.ofiusu,
     rolusu: req.body.usuario.rolusu,
@@ -158,62 +73,34 @@ const registroFromRec = (req) => {
     pwdusu: req.body.usuario.pwdusu,
     tipmov: req.body.usuario.tipmov,
     saltus: req.body.usuario.saltus,
-  };
-
-  return usuario;
-};
-export const registroUsuario = async (req, res) => {
-  try {
-    let usuario = registroFromRec(req);
-
-    usuario = await registro(usuario);
-    res.status(200).json(usuario);
-  } catch (err) {
-    res.status(403).end();
   }
-};
+
+  return registro
+}
 const cambioFromRec = (req) => {
-  const usuario = {
+  const cambio = {
     idusua: req.body.usuario.idusua,
     pwdusu: req.body.usuario.pwdusu,
+  }
+  const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
-
-  return usuario;
-};
-export const cambioPasswordUsuario = async (req, res) => {
-  try {
-    let usuario = cambioFromRec(req);
-
-    usuario = await cambio(usuario);
-    res.status(200).json(usuario);
-  } catch (err) {
-    res.status(403).end();
   }
-};
+
+  return Object.assign(cambio, movimiento)
+}
 const olvidoFromRec = (req) => {
-  const usuario = {
+  const olvido = {
     emausu: req.body.usuario.emausu,
     pwdusu: req.body.usuario.pwdusu,
     tipmov: req.body.usuario.tipmov,
     saltus: req.body.usuario.saltus,
-  };
-
-  return usuario;
-};
-export const olvidoPasswordUsuario = async (req, res) => {
-  try {
-    let usuario = olvidoFromRec(req);
-
-    usuario = await olvido(usuario);
-    res.status(200).json(usuario);
-  } catch (err) {
-    res.status(403).end();
   }
-};
+
+  return olvido
+}
 const perfilFromRec = (req) => {
-  const usuario = {
+  const perfil = {
     idusua: req.body.usuario.idusua,
     nomusu: req.body.usuario.nomusu,
     ofiusu: req.body.usuario.ofiusu,
@@ -221,18 +108,146 @@ const perfilFromRec = (req) => {
     telusu: req.body.usuario.telusu,
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
+  }
 
-  return usuario;
-};
+  return perfil
+}
+
+export const getUsuarios = async (req, res) => {
+  try {
+    const rows = await findAll()
+
+    res.status(200).json(rows)
+  } catch (err) {
+    res.status(400).end()
+  }
+}
+export const getUsuario = async (req, res) => {
+  try {
+    const context = {}
+
+    context.userid = req.body.userid
+
+    const rows = await findByUserid(context)
+
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0])
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const getUsuarioByEmail = async (req, res) => {
+  try {
+    const context = {}
+
+    context.emausu = req.body.emausu
+
+    const rows = await findByEmail(context)
+
+    if (context.emausu) {
+      if (rows.length === 1) {
+        res.status(200).json(rows[0])
+      } else {
+        res.status(404).end()
+      }
+    } else {
+      res.status(402).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const insertUsuario = async (req, res) => {
+  try {
+    const result = await insert(insertFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const updateUsuario = async (req, res) => {
+  try {
+    const result = await update(updateFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const deleteUsuario = async (req, res) => {
+  try {
+    const result = await remove(deleteFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const registroUsuario = async (req, res) => {
+  try {
+    const result = await register(registroFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(403).end()
+  }
+}
+export const cambioUsuario = async (req, res) => {
+  try {
+    const result = await change(cambioFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(403).end()
+  }
+}
+export const olvidoUsuario = async (req, res) => {
+  try {
+    const result = await forgot(olvidoFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(403).end()
+  }
+}
 export const perfilUsuario = async (req, res) => {
   try {
-    let usuario = perfilFromRec(req);
+    const result = await profile(perfilFromRec(req))
 
-    await perfil(usuario);
-
-    res.status(200).json(usuario);
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}

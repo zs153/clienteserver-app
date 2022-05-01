@@ -5,7 +5,10 @@ import cookieParser from 'cookie-parser'
 import path from 'path'
 import cors from 'cors'
 import { port } from '../config/settings'
+
 import apiRouter from '../routes/api.router'
+import apiFormularioRouter from '../routes/formulario.router'
+import apiSmsRouter from '../routes/sms.router'
 
 let httpServer
 
@@ -24,6 +27,8 @@ function initialize() {
 
     // routes
     app.use('/api', apiRouter)
+    app.use('/api', apiFormularioRouter)
+    app.use('/api', apiSmsRouter)
 
     // server
     httpServer

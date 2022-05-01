@@ -1,128 +1,132 @@
-import Subtipo from '../models/subtipo.model'
+import {
+  find,
+  findAll,
+  findTiposSubtipos,
+  findSubtiposTipo,
+  insert,
+  update,
+  remove,
+} from '../models/subtipo.model'
 
-let subtipo = new Subtipo()
+const insertFromRec = (req) => {
+  const subtipo = {
+    dessub: req.body.subtipo.dessub,
+    idtipo: req.body.subtipo.idtipo,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(subtipo, movimiento)
+}
+const updateFromRec = (req) => {
+  const subtipo = {
+    idsubt: req.body.subtipo.idsubt,
+    dessub: req.body.subtipo.dessub,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(subtipo, movimiento)
+}
+const deleteFromRec = (req) => {
+  const subtipo = {
+    idsubt: req.body.subtipo.idsubt,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(subtipo, movimiento)
+}
 
 export const getSubtipo = async (req, res) => {
-  subtipo.id = req.body.idsubt
-
   try {
-    const { err, dat } = await subtipo.getSubtipo()
-    if (err) {
-      res.status(403).json(err)
+    const context = {}
+    context.idsubt = req.body.idsubt
+
+    const rows = await find(context)
+
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0])
     } else {
-      return res.status(200).json(subtipo)
+      res.status(404).end()
     }
-  } catch (error) {
-    return res.status(500).json({ err })
+  } catch (err) {
+    res.status(500).end()
   }
 }
 export const getSubtipos = async (req, res) => {
   try {
-    const { err, dat } = await subtipo.getSubtipos()
+    const rows = await findAll()
 
-    if (err) {
-      return res.status(404).json({ err })
-    } else {
-      return res.status(200).json({ dat })
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    res.status(200).json(rows)
+  } catch (err) {
+    res.status(400).end()
   }
 }
 export const getTiposSubtipos = async (req, res) => {
   try {
-    const { err, dat } = await subtipo.getTiposSubtipos()
+    const rows = await findTiposSubtipos()
 
-    if (err) {
-      res.status(402).json(err)
-    } else {
-      res.status(200).json(dat)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    return res.status(200).json(rows)
+  } catch (err) {
+    res.status(500).end()
   }
 }
 export const getSubtiposTipo = async (req, res) => {
-  subtipo.idTipo = req.body.idtipo
   try {
-    const { err, dat } = await subtipo.getSubtiposTipo()
+    const context = {}
+    context.idtipo = req.body.idtipo
 
-    if (err) {
-      res.status(402).json(err)
-    } else {
-      res.status(200).json(dat)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    const rows = await findSubtiposTipo(context)
+
+    return res.status(200).json(rows)
+  } catch (err) {
+    res.status(500).end()
   }
 }
+
 export const insertSubtipo = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // subtipo
-  subtipo.descripcion = req.body.subtipo.dessub
-  subtipo.idTipo = req.body.subtipo.idtipo
-  // movimiento
-  subtipo.movimiento.usuario = usuarioMov
-  subtipo.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await subtipo.insert()
+    const result = await insert(insertFromRec(req))
 
-    if (err) {
-      res.status(404).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      subtipo.id = dat.p_idsubt
-
-      res.status(200).json(subtipo)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
 export const updateSubtipo = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // subtipo
-  subtipo.id = req.body.subtipo.idsubt
-  subtipo.descripcion = req.body.subtipo.dessub
-  // tipo
-  subtipo.idTOld = req.body.subtipo.idtold
-  subtipo.idTipo = req.body.subtipo.idtipo
-  // movimiento
-  subtipo.movimiento.usuario = usuarioMov
-  subtipo.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await subtipo.update()
+    const result = await update(updateFromRec(req))
 
-    if (err) {
-      res.status(404).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(subtipo)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
 export const deleteSubtipo = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // subtipo
-  subtipo.id = req.body.subtipo.idsubt
-  // movimiento
-  subtipo.movimiento.usuario = usuarioMov
-  subtipo.movimiento.tipo = tipoMov
-
   try {
-    const { err, dat } = await subtipo.delete()
+    const result = await remove(deleteFromRec(req))
 
-    if (err) {
-      res.status(404).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(subtipo)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }

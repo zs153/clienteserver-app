@@ -1,102 +1,159 @@
-import Sms from '../models/sms.model'
+import {
+  find,
+  findAll,
+  insert,
+  update,
+  remove,
+  change,
+} from '../models/sms.model'
 
-let sms = new Sms()
+const insertFromRec = (req) => {
+  const sms = {
+    fecsms: req.body.fecsms,
+    texsms: req.body.texsms,
+    movsms: req.body.movsms,
+    stasms: req.body.stasms,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
 
-export const getSmss = async (req, res) => {
+  return Object.assign(sms, movimiento)
+}
+const updateFromRec = (req) => {
+  const sms = {
+    idsmss: req.body.idsmss,
+    fecsms: req.body.fecsms,
+    texsms: req.body.texsms,
+    movsms: req.body.movsms,
+    stasms: req.body.stasms,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(sms, movimiento)
+}
+const deleteFromRec = (req) => {
+  const sms = {
+    idsmss: req.body.documento.idsmss,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(sms, movimiento)
+}
+const cambioFromRec = (req) => {
+  const sms = {
+    idsmss: req.body.documento.idsmss,
+    stasms: req.body.documento.stasms,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(sms, movimiento)
+}
+
+export const sms = async (req, res) => {
   try {
-    const { err, dat } = await sms.getSmss()
+    const context = {}
+    context.idsmss = req.body.idsmss
 
-    if (err) {
-      return res.status(404).json({ err })
+    const rows = await find(context)
+
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0])
     } else {
-      return res.status(200).json({ dat })
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const getSms = async (req, res) => {
-  sms.id = req.body.id
-
+export const smss = async (req, res) => {
   try {
-    const { err, dat } = await sms.getSms()
+    const context = {}
+    context.stasms = req.body.sms.stasms
 
-    if (err) {
-      res.status(402).send(err)
-    } else {
-      res.status(200).send(sms)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+    const rows = await findAll(context)
+
+    res.status(200).json(rows)
+  } catch (err) {
+    res.status(400).end()
   }
 }
-export const insertSms = async (req, res) => {
-  const { movil, idDocumento } = req.body.documento
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // Sms
-  sms.texto = req.body.sms.texsms
-  sms.movil = movil
-  sms.estado = req.body.sms.stasms
-  // documento
-  sms.idDocumento = idDocumento
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
+export const smsByMovil = async (req, res) => {
   try {
-    const { err, dat } = await sms.insert()
+    const context = {}
+    context.movsms = req.body.sms.movsms
 
-    if (err) {
-      res.status(403).json(err)
+    const rows = await findByMovil(context)
+
+    if (rows.length === 1) {
+      res.status(200).json(rows[0])
     } else {
-      res.status(200).json(sms)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const updateSms = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
 
-  // Sms
-  sms.id = req.body.sms.idsmss
-  sms.texto = req.body.sms.texsms
-  sms.estado = req.body.sms.stasms
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
+export const add = async (req, res) => {
   try {
-    const { err, dat } = await sms.update()
+    const result = await insert(insertFromRec(req))
 
-    if (err) {
-      res.status(403).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(sms)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const deleteSms = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // Sms
-  sms.id = req.body.sms.idsmss
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
+export const mod = async (req, res) => {
   try {
-    const { err, dat } = await sms.delete()
+    const result = await update(updateFromRec(req))
 
-    if (err) {
-      res.status(403).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(sms)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const del = async (req, res) => {
+  try {
+    const result = await remove(deleteFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const cambioEstado = async (req, res) => {
+  try {
+    const result = await change(cambioFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
   }
 }

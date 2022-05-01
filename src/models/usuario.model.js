@@ -1,8 +1,7 @@
-import oracledb from "oracledb";
-import { simpleExecute } from "../services/database.js";
+import oracledb from 'oracledb'
+import { simpleExecute } from '../services/database.js'
 
-const baseQuery = `
-  SELECT 
+const baseQuery = `SELECT 
     idusua,
     nomusu,
     ofiusu,
@@ -14,9 +13,8 @@ const baseQuery = `
     pwdusu,
     stausu
   FROM usuarios
-`;
-const largeQuery = `
-  SELECT 
+`
+const largeQuery = `SELECT 
     uu.idusua,
     uu.nomusu,
     uu.ofiusu,
@@ -30,53 +28,52 @@ const largeQuery = `
     oo.desofi
   FROM usuarios uu
   INNER JOIN oficinas oo ON oo.idofic = ofiusu
-`;
+`
 export const find = async (context) => {
-  let query = baseQuery;
-  let binds = {};
+  let query = baseQuery
+  let binds = {}
 
-  binds.idusua = context.idusua;
+  binds.idusua = context.idusua
 
-  query += `WHERE idusua = :idusua`;
+  query += `WHERE idusua = :idusua`
 
-  const result = await simpleExecute(query, binds);
-  return result.rows;
-};
+  const result = await simpleExecute(query, binds)
+  return result.rows
+}
 export const findAll = async () => {
-  let query = largeQuery;
+  let query = largeQuery
 
-  const result = await simpleExecute(query);
-  return result.rows;
-};
+  const result = await simpleExecute(query)
+  return result.rows
+}
 export const findByUserid = async (context) => {
-  let query = baseQuery;
-  let binds = {};
+  let query = baseQuery
+  let binds = {}
 
   if (context.userid) {
-    binds.userid = context.userid;
+    binds.userid = context.userid
 
-    query += `WHERE userid = :userid`;
+    query += `WHERE userid = :userid`
   }
 
-  const result = await simpleExecute(query, binds);
-  return result.rows;
-};
+  const result = await simpleExecute(query, binds)
+  return result.rows
+}
 export const findByEmail = async (context) => {
-  let query = baseQuery;
-  let binds = {};
+  let query = baseQuery
+  let binds = {}
 
   if (context.emausu) {
-    binds.emausu = context.emausu;
+    binds.emausu = context.emausu
 
-    query += `WHERE emausu = :emausu`;
+    query += `WHERE emausu = :emausu`
   }
 
-  const result = await simpleExecute(query, binds);
-  return result.rows;
-};
+  const result = await simpleExecute(query, binds)
+  return result.rows
+}
 
-const insertSql = `
-  BEGIN FORMULARIOS_PKG.INSERTUSUARIO(
+const insertSql = `BEGIN FORMULARIOS_PKG.INSERTUSUARIO(
     :nomusu,
     :ofiusu,
     :rolusu,
@@ -90,29 +87,24 @@ const insertSql = `
     :tipmov,
     :idusua
   ); END;
-`;
+`
 export const insert = async (bind) => {
-  let result;
-
   bind.idusua = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
-  };
-
-  try {
-    result = await simpleExecute(insertSql, bind);
-
-    bind.idusua = await result.outBinds.idusua;
-    result = bind;
-  } catch (error) {
-    result = null;
   }
 
-  return result;
-};
+  try {
+    const result = await simpleExecute(insertSql, bind)
 
-const updateSql = `
-  BEGIN FORMULARIOS_PKG.UPDATEUSUARIO(
+    bind.idusua = await result.outBinds.idusua
+  } catch (error) {
+    bind = null
+  }
+
+  return bind
+}
+const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEUSUARIO(
     :idusua,
     :nomusu, 
     :ofiusu, 
@@ -125,39 +117,40 @@ const updateSql = `
     :usumov, 
     :tipmov
   ); END;
-`;
+`
 export const update = async (bind) => {
-  let result;
+  let result
 
   try {
-    result = await simpleExecute(updateSql, bind);
-  } catch (error) {
-    result = null;
-  }
-};
+    await simpleExecute(updateSql, bind)
 
-const removeSql = `
-  BEGIN FORMULARIOS_PKG.DELETEUSUARIO(
+    result = bind
+  } catch (error) {
+    result = null
+  }
+
+  return result
+}
+const removeSql = `BEGIN FORMULARIOS_PKG.DELETEUSUARIO(
     :idusua,
     :usumov,
     :tipmov 
   ); END;
-`;
+`
 export const remove = async (bind) => {
-  let result;
+  let result
 
   try {
-    await simpleExecute(removeSql, bind);
-    result = bind;
+    await simpleExecute(removeSql, bind)
+
+    result = bind
   } catch (error) {
-    result = null;
+    result = null
   }
 
-  return result;
-};
-
-const registroSql = `
-  BEGIN FORMULARIOS_PKG.REGISTROUSUARIO(
+  return result
+}
+const registroSql = `BEGIN FORMULARIOS_PKG.REGISTROUSUARIO(
     :nomusu, 
     :ofiusu, 
     :rolusu, 
@@ -171,61 +164,64 @@ const registroSql = `
     :saltus, 
     :idusua
   ); END;
-`;
-export const registro = async (user) => {
-  const bind = Object.assign({}, user);
-
+`
+export const register = async (bind) => {
   bind.idusua = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
-  };
+  }
 
-  const result = await simpleExecute(registroSql, bind);
+  try {
+    const result = await simpleExecute(registroSql, bind)
 
-  bind.idusua = result.outBinds.idusua;
-  return bind;
-};
+    bind.idusua = await result.outBinds.idusua
+  } catch (error) {
+    bind = null
+  }
 
-const cambioSql = `
-  BEGIN FORMULARIOS_PKG.CHANGEPASSWORD(
+  return bind
+}
+const cambioSql = `BEGIN FORMULARIOS_PKG.CHANGEPASSWORD(
     :idusua,
     :pwdusu, 
     :usumov,
     :tipmov
   ); END;
-`;
-export const cambio = async (user) => {
-  const bind = Object.assign({}, user);
-  const result = await simpleExecute(cambioSql, bind);
+`
+export const change = async (bind) => {
+  let result
 
-  if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind;
-  } else {
-    return null;
+  try {
+    await simpleExecute(cambioSql, bind)
+
+    result = bind
+  } catch (error) {
+    result = null
   }
-};
 
-const olvidoSql = `
-  BEGIN FORMULARIOS_PKG.FORGOTPASSWORD(
+  return result
+}
+const olvidoSql = `BEGIN FORMULARIOS_PKG.FORGOTPASSWORD(
     :emausu,
     :pwdusu, 
     :tipmov,
     :saltus
   ); END;
-`;
-export const olvido = async (user) => {
-  const bind = Object.assign({}, user);
-  const result = await simpleExecute(olvidoSql, bind);
+`
+export const forgot = async (bind) => {
+  let result
 
-  if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind;
-  } else {
-    return null;
+  try {
+    await simpleExecute(olvidoSql, bind)
+
+    result = bind
+  } catch (error) {
+    result = null
   }
-};
 
-const perfilSql = `
-  BEGIN FORMULARIOS_PKG.UPDATEPERFILUSUARIO(
+  return result
+}
+const perfilSql = `BEGIN FORMULARIOS_PKG.UPDATEPERFILUSUARIO(
     :idusua,
     :nomusu,
     :ofiusu,
@@ -234,14 +230,17 @@ const perfilSql = `
     :usumov,
     :tipmov
   ); END;
-`;
-export const perfil = async (user) => {
-  const bind = Object.assign({}, user);
-  const result = await simpleExecute(perfilSql, bind);
+`
+export const profile = async (bind) => {
+  let result
 
-  if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind;
-  } else {
-    return null;
+  try {
+    await simpleExecute(perfilSql, bind)
+
+    result = bind
+  } catch (error) {
+    result = null
   }
-};
+
+  return result
+}
