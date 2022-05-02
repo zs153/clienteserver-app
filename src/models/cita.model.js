@@ -6,17 +6,17 @@ const baseQuery = `SELECT
   oo.desofi
   FROM citas cc
   INNER JOIN oficinas oo ON oo.idofic = cc.oficit
-  WHERE cc.idcita = :idcita`;
+`;
 const largeQuery = `SELECT 
   cc.*,oo.desofi,TO_CHAR(cc.feccit,'DD/MM/YYYY') "STRFEC",
   CASE WHEN gg.nifcog IS NULL THEN 'Sí' ELSE 'No' END "COMPLE" FROM citas cc
   INNER JOIN oficinas oo ON oo.idofic = cc.oficit
   LEFT JOIN cognos gg ON gg.nifcog = cc.nifcon
   WHERE cc.stacit <= :stacit AND 
-    cc.feccit BETWEEN TRUNC(SYSDATE) +8/24 AND TRUNC(SYSDATE) +1 +20/24
+    cc.feccit BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) +24/24
 `;
 
-export const find = async (context) => {
+export const findAll = async (context) => {
   let query = largeQuery;
   let binds = {};
 
@@ -33,11 +33,14 @@ export const find = async (context) => {
 
   return result.rows;
 };
-export const findById = async (context) => {
+export const find = async (context) => {
   let query = baseQuery;
   let binds = {};
 
-  binds.idcita = context.idcita;
+  if (context.idcita) {
+    binds.idcita = context.idcita;
+    query += `WHERE idcita = :idcita`;
+  }
 
   const result = await simpleExecute(query, binds);
   return result.rows[0];

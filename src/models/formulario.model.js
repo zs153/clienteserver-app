@@ -1,5 +1,5 @@
-import oracledb from 'oracledb'
-import { simpleExecute } from '../services/database.js'
+import oracledb from "oracledb";
+import { simpleExecute } from "../services/database.js";
 
 const baseQuery = `SELECT 
   iddocu,
@@ -18,7 +18,7 @@ const baseQuery = `SELECT
   liqdoc,
   stadoc
 FROM documentos
-`
+`;
 const largeQuery = `SELECT 
   oo.desofi,
   tt.destip,
@@ -27,9 +27,7 @@ const largeQuery = `SELECT
 FROM documentos dd
 INNER JOIN tipos tt ON tt.idtipo = dd.tipdoc
 INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
-WHERE dd.stadoc IN (0,:stadoc)
-ORDER BY dd.ofidoc, dd.fecdoc
-`
+`;
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTDOCUMENTO(
   :fecdoc, 
   :nifcon, 
@@ -49,7 +47,7 @@ const insertSql = `BEGIN FORMULARIOS_PKG.INSERTDOCUMENTO(
   :tipmov,
   :iddocu
 ); END;
-`
+`;
 const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEDOCUMENTO(
   :iddocu,
   :fecdoc, 
@@ -69,13 +67,13 @@ const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEDOCUMENTO(
   :usumov,
   :tipmov
 ); END;
-`
+`;
 const removeSql = `BEGIN FORMULARIOS_PKG.DELETEDOCUMENTO(
   :iddocu,
   :usumov,
   :tipmov 
 ); END;
-`
+`;
 const cambioSql = `BEGIN FORMULARIOS_PKG.CAMBIOESTADOFORMULARIO(
   :iddocu,
   :liqdoc,
@@ -83,7 +81,7 @@ const cambioSql = `BEGIN FORMULARIOS_PKG.CAMBIOESTADOFORMULARIO(
   :usumov,
   :tipmov 
 ); END;
-`
+`;
 const estadisticaSql = `SELECT 
   desofi,
   SUM(CASE WHEN stadoc = 0 THEN 1 ELSE 0) as pend,
@@ -100,7 +98,7 @@ INNER JOIN documentos dd ON dd.iddocu = p1.iddocu
 INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
 GROUP BY desofi
 ORDER BY desofi
-`
+`;
 const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMS(
   :texsms,
   :movsms,
@@ -110,133 +108,139 @@ const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMS(
   :tipmov,
   :idsmss
 ); END;
-`
+`;
 
 export const find = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = baseQuery;
+  let binds = {};
 
-  binds.iddocu = context.iddocu
-  query += `WHERE iddocu = :iddocu`
+  if (context.iddocu) {
+    binds.iddocu = context.iddocu;
+    query += `WHERE iddocu = :iddocu`;
+  }
+  if (context.refdoc) {
+    binds.refdoc = context.refdoc;
+    query += `WHERE refdoc = :refdoc`;
+  }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows[0];
+};
 export const findAll = async (context) => {
-  let query = largeQuery
-  let binds = {}
+  let query = largeQuery;
+  let binds = {};
 
-  binds.stadoc = context.stadoc
-  console.log(query)
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
-export const findByRef = async (context) => {
-  let query = baseQuery
-  let binds = {}
-
-  if (context.refdoc) {
-    binds.refdoc = context.refdoc
-
-    query += `\nWHERE refdoc = :refdoc`
+  if (context.stadoc) {
+    binds.stadoc = context.stadoc;
+    query += "WHERE stadoc <= :stadoc";
+  }
+  if (context.ofidoc !== "-1") {
+    query += `WHERE ofidoc = :ofidoc
+    `;
+    if (context.stadoc) {
+      binds.stadoc = context.stadoc;
+      query += `AND stadoc <= :stadoc
+      `;
+    }
+  } else {
+    //todo
   }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 export const findByLiq = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = baseQuery;
+  let binds = {};
 
-  if (context.refdoc) {
-    binds.liqdoc = context.liqdoc
-
-    query += `WHERE liqdoc = :liqdoc`
+  if (context.liqdoc) {
+    binds.liqdoc = context.liqdoc;
+    query += `WHERE liqdoc = :liqdoc`;
   }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 
 export const insert = async (bind) => {
   bind.iddocu = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
-  }
+  };
 
   try {
-    const result = await simpleExecute(insertSql, bind)
+    const result = await simpleExecute(insertSql, bind);
 
-    bind.iddocu = await result.outBinds.iddocu
+    bind.iddocu = await result.outBinds.iddocu;
   } catch (error) {
-    bind = null
+    bind = null;
   }
 
-  return bind
-}
+  return bind;
+};
 export const update = async (bind) => {
-  let result
+  let result;
 
   try {
-    await simpleExecute(updateSql, bind)
+    await simpleExecute(updateSql, bind);
 
-    result = bind
+    result = bind;
   } catch (error) {
-    result = null
+    result = null;
   }
 
-  return result
-}
+  return result;
+};
 export const remove = async (bind) => {
-  let result
+  let result;
 
   try {
-    await simpleExecute(removeSql, bind)
+    await simpleExecute(removeSql, bind);
 
-    result = bind
+    result = bind;
   } catch (error) {
-    result = null
+    result = null;
   }
 
-  return result
-}
+  return result;
+};
 export const stats = async (bind) => {
-  let result
+  let result;
 
   try {
-    result = await simpleExecute(estadisticaSql, bind)
+    result = await simpleExecute(estadisticaSql, bind);
   } catch (error) {
-    result = null
+    result = null;
   }
 
-  return result
-}
+  return result;
+};
 export const change = async (bind) => {
-  let result
+  let result;
 
   try {
-    await simpleExecute(cambioSql, bind)
+    await simpleExecute(cambioSql, bind);
 
-    result = bind
+    result = bind;
   } catch (error) {
-    result = null
+    result = null;
   }
 
-  return result
-}
+  return result;
+};
 export const insertSms = async (bind) => {
   bind.idsmss = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
-  }
+  };
 
   try {
-    const result = await simpleExecute(smsSql, bind)
+    const result = await simpleExecute(smsSql, bind);
 
-    bind.idsmss = await result.outBinds.idsmss
+    bind.idsmss = await result.outBinds.idsmss;
   } catch (error) {
-    bind = null
+    bind = null;
   }
 
-  return bind
-}
+  return bind;
+};
