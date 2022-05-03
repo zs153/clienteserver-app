@@ -1,79 +1,126 @@
-import { find, insert, update, remove, findById } from "../models/cita.model";
+import * as DAL from "../models/cita.model";
 
-export const getCita = async (req, res) => {
+const insertFromRec = (req) => {
+  const documento = {
+    orgcit: req.body.documento.orgcit,
+    oficit: req.body.documento.oficit,
+    feccit: req.body.documento.feccit,
+    horcit: req.body.documento.horcit,
+    nifcon: req.body.documento.nifcon,
+    nomcon: req.body.documento.nomcon,
+    telcon: req.body.documento.telcon,
+    descit: req.body.documento.descit,
+    notcit: req.body.documento.notcit,
+    obscit: req.body.documento.obscit,
+    stacit: req.body.documento.stacit,
+  };
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return Object.assign(documento, movimiento);
+};
+const updateFromRec = (req) => {
+  const documento = {
+    idcita: req.body.cita.idcita,
+    obscit: req.body.cita.obscit,
+  };
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return Object.assign(documento, movimiento);
+};
+const deleteFromRec = (req) => {
+  const documento = {
+    idcita: req.body.documento.idcita,
+  };
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return Object.assign(documento, movimiento);
+};
+const cambioFromRec = (req) => {
+  const documento = {
+    idcita: req.body.documento.idcita,
+    stacit: req.body.documento.stacit,
+  };
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return Object.assign(documento, movimiento);
+};
+const asignarFromRec = (req) => {
+  const cita = {
+    idcita: req.body.cita.idcita,
+    stacit: req.body.cita.stacit,
+  };
+  const formulario = {
+    fecdoc: req.body.formulario.fecdoc,
+    nifcon: req.body.formulario.nifcon,
+    nomcon: req.body.formulario.nomcon,
+    emacon: req.body.formulario.emacon,
+    telcon: req.body.formulario.telcon,
+    movcon: req.body.formulario.movcon,
+    refdoc: req.body.formulario.refdoc,
+    tipdoc: req.body.formulario.tipdoc,
+    ejedoc: req.body.formulario.ejedoc,
+    ofidoc: req.body.formulario.ofidoc,
+    obsdoc: req.body.formulario.obsdoc,
+    fundoc: req.body.formulario.fundoc,
+    liqdoc: req.body.formulario.liqdoc,
+    stadoc: req.body.formulario.stadoc,
+  };
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  };
+
+  return Object.assign(cita, formulario, movimiento);
+};
+
+export const cita = async (req, res) => {
   try {
     const context = {};
     context.idcita = req.body.idcita;
 
-    const rows = await findById(context);
+    const rows = await DAL.find(context);
 
-    res.status(200).json(rows);
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0]);
+    } else {
+      res.status(404).end();
+    }
   } catch (err) {
-    res.status(400).end();
+    res.status(500).end();
   }
 };
-export const getCitas = async (req, res) => {
+export const citas = async (req, res) => {
   try {
     const context = {};
     context.stacit = req.body.cita.stacit;
     context.oficit = req.body.cita.oficit;
 
-    const rows = await find(context);
+    const rows = await DAL.findAll(context);
 
     res.status(200).json(rows);
   } catch (err) {
     res.status(400).end();
   }
 };
-const insertFromRec = (req) => {
-  let doc = {
-    orgcit: req.body.cita.orgcit,
-    oficit: req.body.cita.oficit,
-    feccit: req.body.cita.feccit,
-    horcit: req.body.cita.horcit,
-    nifcon: req.body.cita.nifcon,
-    nomcon: req.body.cita.nomcon,
-    telcon: req.body.cita.telcon,
-    descit: req.body.cita.descit,
-    notcit: req.body.cita.notcit,
-    obscit: req.body.cita.obscit,
-    stacit: req.body.cita.stacit,
-  };
-  doc.movimiento = {
-    usumov: req.body.movimiento.usumov,
-    tipmov: req.body.movimiento.tipmov,
-  };
 
-  return doc;
-};
-export const insertCita = async (req, res) => {
+export const crear = async (req, res) => {
   try {
-    let cita = insertFromRec(req);
-    cita = await insert(cita);
+    const result = await DAL.insert(insertFromRec(req));
 
-    res.status(200).json(cita);
-  } catch (err) {
-    res.status(500).end();
-  }
-};
-const updateFromRec = (req) => {
-  let doc = {
-    idcita: req.body.cita.idcita,
-    obscit: req.body.cita.obscit,
-    usumov: req.body.movimiento.usumov,
-    tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const updateCita = async (req, res) => {
-  try {
-    let cita = updateFromRec(req);
-
-    cita = await update(cita);
-
-    if (cita !== null) {
-      res.status(200).json(cita);
+    if (result !== null) {
+      res.status(200).json(result);
     } else {
       res.status(404).end();
     }
@@ -81,24 +128,12 @@ export const updateCita = async (req, res) => {
     res.status(500).end();
   }
 };
-const deleteFromRec = (req) => {
-  let doc = {
-    idcita: req.body.cita.idcita,
-  };
-  doc.movimiento = {
-    usumov: req.body.movimiento.usumov,
-    tipmov: req.body.movimiento.tipmov,
-  };
-
-  return doc;
-};
-export const deleteCita = async (req, res) => {
+export const modificar = async (req, res) => {
   try {
-    const cita = deleteFromRec(req);
-    const success = await remove(cita);
+    const result = await DAL.update(updateFromRec(req));
 
-    if (success) {
-      res.status(200).end();
+    if (result !== null) {
+      res.status(200).json(result);
     } else {
       res.status(404).end();
     }
@@ -106,26 +141,42 @@ export const deleteCita = async (req, res) => {
     res.status(500).end();
   }
 };
-const cambioFromRec = (req) => {
-  let doc = {
-    idcita: req.body.documento.idcita,
-    liqdoc: req.body.documento.liqdoc,
-    stadoc: req.body.documento.stadoc,
-  };
-  doc.movimiento = {
-    usumov: req.body.movimiento.usumov,
-    tipmov: req.body.movimiento.tipmov,
-  };
+export const borrar = async (req, res) => {
+  try {
+    const result = await DAL.remove(deleteFromRec(req));
 
-  return doc;
+    if (result !== null) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).end();
+    }
+  } catch (err) {
+    res.status(500).end();
+  }
 };
 export const cambioEstado = async (req, res) => {
   try {
-    const documento = cambioFromRec(req);
+    const result = await DAL.change(cambioFromRec(req));
 
-    await cambioEstado(documento);
-    res.status(200).end();
+    if (result !== null) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).end();
+    }
   } catch (err) {
-    res.status(403).end();
+    res.status(500).end();
+  }
+};
+export const citaToFormulario = async (req, res) => {
+  try {
+    const result = await DAL.asignar(asignarFromRec(req));
+
+    if (result !== null) {
+      res.status(200).json(result);
+    } else {
+      res.status(404).end();
+    }
+  } catch (err) {
+    res.status(500).end();
   }
 };

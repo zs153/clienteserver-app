@@ -1,29 +1,22 @@
-import Gente from "../models/gente.model";
-
-let gente = new Gente();
+import * as Gente from "../models/gente.model";
 
 export const getGente = async (req, res) => {
-  const nif = req.body.nifgen;
+  const context = {};
+  context.nifgen = req.body.nifgen;
 
-  if (nif.length === 9) {
-    gente.nif = nif;
-  } else {
-    gente.nif = nif.slice(0, 9);
-    gente.discrim = nif.slice(-1);
+  if (context.nifgen.length > 9) {
+    context.disgen = nif.slice(-1);
   }
 
   try {
-    const { err, dat } =
-      nif.length === 9
-        ? await gente.getGenteByNif()
-        : await gente.getGenteByNifDiscriminante();
+    const rows = await Gente.find(context);
 
-    if (err) {
-      res.status(403).json(err);
+    if (rows.length === 1) {
+      return res.status(200).json(rows[0]);
     } else {
-      return res.status(200).json(dat);
+      res.status(404).end();
     }
-  } catch (error) {
-    res.status(500).json(error);
+  } catch (err) {
+    res.status(500).end();
   }
 };

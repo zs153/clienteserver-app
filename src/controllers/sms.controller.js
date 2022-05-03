@@ -1,159 +1,153 @@
-import {
-  find,
-  findAll,
-  insert,
-  update,
-  remove,
-  change,
-} from '../models/sms.model'
+import * as DAL from "../models/sms.model";
 
 const insertFromRec = (req) => {
   const sms = {
-    fecsms: req.body.fecsms,
-    texsms: req.body.texsms,
-    movsms: req.body.movsms,
-    stasms: req.body.stasms,
-  }
+    texsms: req.body.sms.texsms,
+    movsms: req.body.sms.movsms,
+    stasms: req.body.sms.stasms,
+  };
+  const formulario = {
+    iddocu: req.body.formulario.iddocu,
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(sms, movimiento)
-}
+  return Object.assign(sms, formulario, movimiento);
+};
 const updateFromRec = (req) => {
   const sms = {
-    idsmss: req.body.idsmss,
-    fecsms: req.body.fecsms,
-    texsms: req.body.texsms,
-    movsms: req.body.movsms,
-    stasms: req.body.stasms,
-  }
+    idsmss: req.body.sms.idsmss,
+    texsms: req.body.sms.texsms,
+    stasms: req.body.sms.stasms,
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(sms, movimiento)
-}
+  return Object.assign(sms, movimiento);
+};
 const deleteFromRec = (req) => {
   const sms = {
-    idsmss: req.body.documento.idsmss,
-  }
+    idsmss: req.body.sms.idsmss,
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(sms, movimiento)
-}
+  return Object.assign(sms, movimiento);
+};
 const cambioFromRec = (req) => {
   const sms = {
     idsmss: req.body.documento.idsmss,
     stasms: req.body.documento.stasms,
-  }
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(sms, movimiento)
-}
+  return Object.assign(sms, movimiento);
+};
 
 export const sms = async (req, res) => {
   try {
-    const context = {}
-    context.idsmss = req.body.idsmss
+    const context = {};
+    context.idsmss = req.body.idsmss;
 
-    const rows = await find(context)
+    const rows = await DAL.find(context);
 
     if (rows.length === 1) {
-      return res.status(200).json(rows[0])
+      return res.status(200).json(rows[0]);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    console.log(err);
+    res.status(500).end();
   }
-}
+};
 export const smss = async (req, res) => {
   try {
-    const context = {}
-    context.stasms = req.body.sms.stasms
+    const context = {};
+    context.stasms = req.body.sms.stasms;
 
-    const rows = await findAll(context)
+    const rows = await DAL.findAll(context);
 
-    res.status(200).json(rows)
+    res.status(200).json(rows);
   } catch (err) {
-    res.status(400).end()
+    res.status(400).end();
   }
-}
+};
 export const smsByMovil = async (req, res) => {
   try {
-    const context = {}
-    context.movsms = req.body.sms.movsms
+    const context = {};
+    context.movsms = req.body.movsms;
 
-    const rows = await findByMovil(context)
+    const rows = await DAL.findByMovil(context);
 
     if (rows.length === 1) {
-      res.status(200).json(rows[0])
+      return res.status(200).json(rows[0]);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
+};
 
-export const add = async (req, res) => {
+export const crear = async (req, res) => {
   try {
-    const result = await insert(insertFromRec(req))
+    const result = await DAL.insert(insertFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
-export const mod = async (req, res) => {
+};
+export const modificar = async (req, res) => {
   try {
-    const result = await update(updateFromRec(req))
+    const result = await DAL.update(updateFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
-export const del = async (req, res) => {
+};
+export const borrar = async (req, res) => {
   try {
-    const result = await remove(deleteFromRec(req))
+    const result = await DAL.remove(deleteFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
+};
 export const cambioEstado = async (req, res) => {
   try {
-    const result = await change(cambioFromRec(req))
+    const result = await DAL.change(cambioFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
+};

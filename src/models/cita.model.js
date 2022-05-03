@@ -15,24 +15,59 @@ const largeQuery = `SELECT
   WHERE cc.stacit <= :stacit AND 
     cc.feccit BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) +24/24
 `;
+const insertSql = `BEGIN FORMULARIOS_PKG.INSERTCITA(
+  :orgcit, 
+  :oficit, 
+  :feccit, 
+  :horcit, 
+  :nifcon, 
+  :nomcon, 
+  :telcon, 
+  :descit, 
+  :notcit, 
+  :obscit, 
+  :stacir,
+  :usumov,
+  :tipmov,
+  :idcita
+); END;
+`;
+const updateSql = `BEGIN FORMULARIOS_PKG.UPDATECITA(
+  :idcita,
+  :obscit, 
+  :usumov,
+  :tipmov
+); END;
+`;
+const removeSql = `BEGIN FORMULARIOS_PKG.DELETECITA(
+  :idcita,
+  :usumov,
+  :tipmov 
+); END;
+`;
+const asignarSql = `BEGIN FORMULARIOS_PKG.ASIGNARCITA(
+  :idcita,
+  :stacit,
+  TO_DATE(:fecdoc, 'YYYY-MM-DD'),
+  :nifcon, 
+  :nomcon, 
+  :emacon, 
+  :telcon, 
+  :movcon, 
+  :refdoc, 
+  :tipdoc, 
+  :ejedoc, 
+  :ofidoc, 
+  :obsdoc,
+  :fundoc,
+  :liqdoc,
+  :stadoc,
+  :usumov,
+  :tipmov,
+  :iddocu
+); END;
+`;
 
-export const findAll = async (context) => {
-  let query = largeQuery;
-  let binds = {};
-
-  if (context.oficit !== "-1") {
-    query += `AND cc.oficit = :oficit ORDER BY cc.oficit, cc.feccit, cc.horcit`;
-    binds.oficit = context.oficit;
-  } else {
-    query += `ORDER BY cc.oficit, cc.feccit, cc.horcit`;
-  }
-
-  binds.stacit = context.stacit;
-
-  const result = await simpleExecute(query, binds);
-
-  return result.rows;
-};
 export const find = async (context) => {
   let query = baseQuery;
   let binds = {};
@@ -43,50 +78,41 @@ export const find = async (context) => {
   }
 
   const result = await simpleExecute(query, binds);
-  return result.rows[0];
+  return result.rows;
 };
-const insertSql = `
-  BEGIN FORMULARIOS_PKG.INSERTCITA(
-    :orgcit, 
-    :oficit, 
-    :feccit, 
-    :horcit, 
-    :nifcon, 
-    :nomcon, 
-    :telcon, 
-    :descit, 
-    :notcit, 
-    :obscit, 
-    :stacir,
-    :usumov,
-    :tipmov,
-    :idcita
-  ); END;
-`;
-export const insert = async (doc) => {
-  const bind = Object.assign({}, doc);
+export const findAll = async (context) => {
+  let query = largeQuery;
+  let binds = {};
 
+  binds.stacit = context.stacit;
+  if (context.oficit !== "-1") {
+    binds.oficit = context.oficit;
+    query += `AND cc.oficit = :oficit
+    `;
+  }
+  query += `ORDER BY cc.oficit, cc.feccit, cc.horcit`;
+  console.log(query, binds);
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
+
+export const insert = async (bind) => {
   bind.idcita = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   };
 
-  const result = await simpleExecute(insertSql, bind);
+  try {
+    const result = await simpleExecute(insertSql, bind);
 
-  bind.idcita = result.outBinds.idcita[0];
+    bind.idcita = await result.outBinds.idcita;
+  } catch (error) {
+    bind = null;
+  }
 
   return bind;
 };
-const updateSql = `
-  BEGIN FORMULARIOS_PKG.UPDATECITA(
-    :idcita,
-    :obscit, 
-    :usumov,
-    :tipmov
-  ); END;
-`;
-export const update = async (doc) => {
-  const bind = Object.assign({}, doc);
+export const update = async (bind) => {
   let result;
 
   try {
@@ -94,55 +120,37 @@ export const update = async (doc) => {
 
     result = bind;
   } catch (error) {
-    result = error;
+    result = null;
   }
 
   return result;
 };
-const removeSql = `
-  BEGIN FORMULARIOS_PKG.DELETECITA(
-    :idcita,
-    :usumov,
-    :tipmov 
-  ); END;
-`;
-export const remove = async (doc) => {
-  const bind = Object.assign({}, doc);
-  const result = await simpleExecute(removeSql, bind);
+export const remove = async (bind) => {
+  let result;
 
-  return result.outBinds.rowcount === 1;
-};
-const asinarSql = `
-  BEGIN FORMULARIOS_PKG.ASIGNARCITA(
-    :idcita,
-    :stacit,
-    :fecdoc, 
-    :nifcon, 
-    :nomcon, 
-    :emacon, 
-    :telcon, 
-    :movcon, 
-    :refdoc, 
-    :tipdoc, 
-    :ejedoc, 
-    :ofidoc, 
-    :obsdoc,
-    :fundoc,
-    :liqdoc,
-    :stadoc,
-    :liqdoc,
-    :stadoc,
-    :usumov,
-    :tipmov 
-  ); END;
-`;
-export const asignar = async (doc) => {
-  const bind = Object.assign({}, doc);
-  const result = await simpleExecute(asignarSql, bind);
+  try {
+    await simpleExecute(removeSql, bind);
 
-  if (result.rowsAffected && result.rowsAffected === 1) {
-    return bind;
-  } else {
-    return null;
+    result = bind;
+  } catch (error) {
+    result = null;
   }
+
+  return result;
+};
+export const asignar = async (bind) => {
+  bind.iddocu = {
+    dir: oracledb.BIND_OUT,
+    type: oracledb.NUMBER,
+  };
+
+  try {
+    const result = await simpleExecute(asignarSql, bind);
+
+    bind.iddocu = await result.outBinds.iddocu;
+  } catch (error) {
+    bind = null;
+  }
+
+  return bind;
 };

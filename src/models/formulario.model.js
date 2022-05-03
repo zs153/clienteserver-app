@@ -3,7 +3,7 @@ import { simpleExecute } from "../services/database.js";
 
 const baseQuery = `SELECT 
   iddocu,
-  TO_CHAR(fecdoc, 'YYYY-MM-DD') "STRFEC",
+  TO_CHAR(fecdoc, 'YYYY-MM-DD') "FECDOC",
   nifcon,
   nomcon,
   emacon,
@@ -16,20 +16,22 @@ const baseQuery = `SELECT
   obsdoc,
   fundoc,
   liqdoc,
-  stadoc
+  stadoc,
+  TO_CHAR(fecdoc, 'DD/MM/YYYY') "STRFEC"
 FROM documentos
 `;
 const largeQuery = `SELECT 
   oo.desofi,
   tt.destip,
   dd.*,
-  TO_CHAR(dd.fecdoc, 'YYYY-MM-DD') "STRFEC"
+  TO_CHAR(dd.fecdoc, 'DD/MM/YYYY') "STRFEC"
 FROM documentos dd
 INNER JOIN tipos tt ON tt.idtipo = dd.tipdoc
 INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
+WHERE stadoc <= :stadoc
 `;
-const insertSql = `BEGIN FORMULARIOS_PKG.INSERTDOCUMENTO(
-  :fecdoc, 
+const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFORMULARIO(
+  TO_DATE(:fecdoc,'YYYY-MM-DD'), 
   :nifcon, 
   :nomcon, 
   :emacon, 
@@ -48,27 +50,23 @@ const insertSql = `BEGIN FORMULARIOS_PKG.INSERTDOCUMENTO(
   :iddocu
 ); END;
 `;
-const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEDOCUMENTO(
+const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEFORMULARIO(
   :iddocu,
-  :fecdoc, 
+  TO_DATE(:fecdoc,'YYYY-MM-DD'),
   :nifcon, 
   :nomcon, 
   :emacon, 
   :telcon, 
   :movcon, 
-  :refdoc, 
   :tipdoc, 
   :ejedoc, 
   :ofidoc, 
   :obsdoc,
-  :fundoc,
-  :liqdoc,
-  :stadoc,
   :usumov,
   :tipmov
 ); END;
 `;
-const removeSql = `BEGIN FORMULARIOS_PKG.DELETEDOCUMENTO(
+const removeSql = `BEGIN FORMULARIOS_PKG.DELETEFORMULARIO(
   :iddocu,
   :usumov,
   :tipmov 
@@ -118,33 +116,15 @@ export const find = async (context) => {
     binds.iddocu = context.iddocu;
     query += `WHERE iddocu = :iddocu`;
   }
-  if (context.refdoc) {
-    binds.refdoc = context.refdoc;
-    query += `WHERE refdoc = :refdoc`;
-  }
 
   const result = await simpleExecute(query, binds);
-  return result.rows[0];
+  return result.rows;
 };
 export const findAll = async (context) => {
   let query = largeQuery;
   let binds = {};
 
-  if (context.stadoc) {
-    binds.stadoc = context.stadoc;
-    query += "WHERE stadoc <= :stadoc";
-  }
-  if (context.ofidoc !== "-1") {
-    query += `WHERE ofidoc = :ofidoc
-    `;
-    if (context.stadoc) {
-      binds.stadoc = context.stadoc;
-      query += `AND stadoc <= :stadoc
-      `;
-    }
-  } else {
-    //todo
-  }
+  binds.stadoc = context.stadoc;
 
   const result = await simpleExecute(query, binds);
   return result.rows;
@@ -156,6 +136,18 @@ export const findByLiq = async (context) => {
   if (context.liqdoc) {
     binds.liqdoc = context.liqdoc;
     query += `WHERE liqdoc = :liqdoc`;
+  }
+
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
+export const findByRef = async (context) => {
+  let query = baseQuery;
+  let binds = {};
+
+  if (context.refdoc) {
+    binds.refdoc = context.refdoc;
+    query += `WHERE refdoc = :refdoc`;
   }
 
   const result = await simpleExecute(query, binds);
@@ -204,17 +196,6 @@ export const remove = async (bind) => {
 
   return result;
 };
-export const stats = async (bind) => {
-  let result;
-
-  try {
-    result = await simpleExecute(estadisticaSql, bind);
-  } catch (error) {
-    result = null;
-  }
-
-  return result;
-};
 export const change = async (bind) => {
   let result;
 
@@ -228,12 +209,23 @@ export const change = async (bind) => {
 
   return result;
 };
+export const stats = async (bind) => {
+  let result;
+
+  try {
+    result = await simpleExecute(estadisticaSql, bind);
+  } catch (error) {
+    result = null;
+  }
+
+  return result;
+};
 export const insertSms = async (bind) => {
   bind.idsmss = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   };
-
+  console.log(smsSql, bind);
   try {
     const result = await simpleExecute(smsSql, bind);
 
