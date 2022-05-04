@@ -1,15 +1,4 @@
-import {
-  findAll,
-  findByEmail,
-  findByUserid,
-  insert,
-  update,
-  remove,
-  register,
-  change,
-  forgot,
-  profile,
-} from '../models/usuario.model'
+import * as DAL from "../models/usuario.model";
 
 const insertFromRec = (req) => {
   const usuario = {
@@ -22,14 +11,14 @@ const insertFromRec = (req) => {
     telusu: req.body.usuario.telusu,
     pwdusu: req.body.usuario.pwdusu,
     stausu: req.body.usuario.stausu,
-  }
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(usuario, movimiento)
-}
+  return Object.assign(usuario, movimiento);
+};
 const updateFromRec = (req) => {
   const usuario = {
     idusua: req.body.usuario.idusua,
@@ -41,25 +30,25 @@ const updateFromRec = (req) => {
     perusu: req.body.usuario.perusu,
     telusu: req.body.usuario.telusu,
     stausu: req.body.usuario.stausu,
-  }
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(usuario, movimiento)
-}
+  return Object.assign(usuario, movimiento);
+};
 const deleteFromRec = (req) => {
   const usuario = {
     idusua: req.body.usuario.idusua,
-  }
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(usuario, movimiento)
-}
+  return Object.assign(usuario, movimiento);
+};
 const registroFromRec = (req) => {
   const registro = {
     nomusu: req.body.usuario.nomusu,
@@ -73,32 +62,32 @@ const registroFromRec = (req) => {
     pwdusu: req.body.usuario.pwdusu,
     tipmov: req.body.usuario.tipmov,
     saltus: req.body.usuario.saltus,
-  }
+  };
 
-  return registro
-}
+  return registro;
+};
 const cambioFromRec = (req) => {
   const cambio = {
     idusua: req.body.usuario.idusua,
     pwdusu: req.body.usuario.pwdusu,
-  }
+  };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return Object.assign(cambio, movimiento)
-}
+  return Object.assign(cambio, movimiento);
+};
 const olvidoFromRec = (req) => {
   const olvido = {
     emausu: req.body.usuario.emausu,
     pwdusu: req.body.usuario.pwdusu,
     tipmov: req.body.usuario.tipmov,
     saltus: req.body.usuario.saltus,
-  }
+  };
 
-  return olvido
-}
+  return olvido;
+};
 const perfilFromRec = (req) => {
   const perfil = {
     idusua: req.body.usuario.idusua,
@@ -108,146 +97,125 @@ const perfilFromRec = (req) => {
     telusu: req.body.usuario.telusu,
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  }
+  };
 
-  return perfil
-}
+  return perfil;
+};
 
-export const getUsuarios = async (req, res) => {
+export const usuarios = async (req, res) => {
   try {
-    const rows = await findAll()
+    const rows = await DAL.findAll();
 
-    res.status(200).json(rows)
+    res.status(200).json(rows);
   } catch (err) {
-    res.status(400).end()
+    res.status(400).end();
   }
-}
-export const getUsuario = async (req, res) => {
+};
+export const usuario = async (req, res) => {
+  const context = req.body;
+
   try {
-    const context = {}
-
-    context.userid = req.body.userid
-
-    const rows = await findByUserid(context)
+    const rows = await DAL.find(context);
 
     if (rows.length === 1) {
-      return res.status(200).json(rows[0])
+      return res.status(200).json(rows[0]);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    console.log(err);
+    res.status(500).end();
   }
-}
-export const getUsuarioByEmail = async (req, res) => {
+};
+
+export const insert = async (req, res) => {
   try {
-    const context = {}
-
-    context.emausu = req.body.emausu
-
-    const rows = await findByEmail(context)
-
-    if (context.emausu) {
-      if (rows.length === 1) {
-        res.status(200).json(rows[0])
-      } else {
-        res.status(404).end()
-      }
-    } else {
-      res.status(402).end()
-    }
-  } catch (err) {
-    res.status(500).end()
-  }
-}
-export const insertUsuario = async (req, res) => {
-  try {
-    const result = await insert(insertFromRec(req))
+    const result = await DAL.insert(insertFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
-export const updateUsuario = async (req, res) => {
+};
+export const update = async (req, res) => {
   try {
-    const result = await update(updateFromRec(req))
+    const result = await DAL.update(updateFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
-export const deleteUsuario = async (req, res) => {
+};
+export const remove = async (req, res) => {
   try {
-    const result = await remove(deleteFromRec(req))
+    const result = await DAL.remove(deleteFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
-export const registroUsuario = async (req, res) => {
+};
+export const registro = async (req, res) => {
   try {
-    const result = await register(registroFromRec(req))
+    const result = await register(registroFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(403).end()
+    res.status(403).end();
   }
-}
-export const cambioUsuario = async (req, res) => {
+};
+export const cambioPassword = async (req, res) => {
   try {
-    const result = await change(cambioFromRec(req))
+    const result = await DAL.change(cambioFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(403).end()
+    res.status(500).end();
   }
-}
-export const olvidoUsuario = async (req, res) => {
+};
+export const olvidoPassword = async (req, res) => {
   try {
-    const result = await forgot(olvidoFromRec(req))
+    const result = await DAL.forgot(olvidoFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(403).end()
+    res.status(403).end();
   }
-}
-export const perfilUsuario = async (req, res) => {
+};
+export const perfil = async (req, res) => {
   try {
-    const result = await profile(perfilFromRec(req))
+    const result = await DAL.profile(perfilFromRec(req));
 
     if (result !== null) {
-      res.status(200).json(result)
+      res.status(200).json(result);
     } else {
-      res.status(404).end()
+      res.status(404).end();
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(500).end();
   }
-}
+};

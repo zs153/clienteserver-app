@@ -22,30 +22,9 @@ import {
   inserttipo,
   updatetipo,
 } from "../controllers/tipo.controller";
-import {
-  insertUsuario,
-  updateUsuario,
-  deleteUsuario,
-  getUsuarios,
-  getUsuario,
-  registroUsuario,
-  perfilUsuario,
-  cambioUsuario,
-  olvidoUsuario,
-} from "../controllers/usuario.controller";
 
 const apiRouter = express.Router();
 
-// usuarios
-apiRouter.post("/usuarios", getUsuarios);
-apiRouter.post("/usuario", getUsuario);
-apiRouter.post("/usuarios/insert", insertUsuario);
-apiRouter.post("/usuarios/update", updateUsuario);
-apiRouter.post("/usuarios/delete", deleteUsuario);
-apiRouter.post("/usuarios/registro", registroUsuario);
-apiRouter.post("/usuarios/cambio", cambioUsuario);
-apiRouter.post("/usuarios/forgot", olvidoUsuario);
-apiRouter.post("/usuarios/perfil", perfilUsuario);
 // oficinas
 apiRouter.post("/oficinas", getOficinas);
 apiRouter.post("/oficina", getOficina);

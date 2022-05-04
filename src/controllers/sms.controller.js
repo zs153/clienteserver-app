@@ -55,7 +55,7 @@ const cambioFromRec = (req) => {
 
 export const sms = async (req, res) => {
   try {
-    const context = {};
+    let context = {};
     context.idsmss = req.body.idsmss;
 
     const rows = await DAL.find(context);
@@ -66,7 +66,6 @@ export const sms = async (req, res) => {
       res.status(404).end();
     }
   } catch (err) {
-    console.log(err);
     res.status(500).end();
   }
 };

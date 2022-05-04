@@ -10,6 +10,7 @@ import apiFormularioRouter from "../routes/formulario.router";
 import apiSmsRouter from "../routes/sms.router";
 import apiGenteRouter from "../routes/gente.router";
 import apiCitaRouter from "../routes/cita.router";
+import apiUsuarioRouter from "../routes/usuario.router";
 
 let httpServer;
 
@@ -32,6 +33,7 @@ function initialize() {
     app.use("/api", apiSmsRouter);
     app.use("/api", apiGenteRouter);
     app.use("/api", apiCitaRouter);
+    app.use("/api", apiUsuarioRouter);
 
     // server
     httpServer
