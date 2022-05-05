@@ -1,286 +1,205 @@
-import Fraude from '../models/fraude.model'
-import Usuario from '../models/usuario.model'
-import SMS from '../models/sms.model'
-import bcrypt from 'bcrypt'
+import * as DAL from '../models/fraude.model'
 
-export const getFraudes = async (req, res) => {
-  const fraude = new Fraude()
-  fraude.estado = req.body.documento.stafra
+const insertFromRec = (req) => {
+  const fraude = {
+    fecfra: req.body.fraude.fecfra,
+    nifcon: req.body.fraude.nifcon,
+    nomcon: req.body.fraude.nomcon,
+    emacon: req.body.fraude.emacon,
+    telcon: req.body.fraude.telcon,
+    movcon: req.body.fraude.movcon,
+    reffra: req.body.fraude.reffra,
+    tipfra: req.body.fraude.tipfra,
+    ejefra: req.body.fraude.ejefra,
+    ofifra: req.body.fraude.ofifra,
+    obsfra: req.body.fraude.obsfra,
+    funfra: req.body.fraude.funfra,
+    liqfra: req.body.fraude.liqfra,
+    liqfra: req.body.fraude.liqfra,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, movimiento)
+}
+const updateFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+    fecfra: req.body.fraude.fecfra,
+    nifcon: req.body.fraude.nifcon,
+    nomcon: req.body.fraude.nomcon,
+    emacon: req.body.fraude.emacon,
+    telcon: req.body.fraude.telcon,
+    movcon: req.body.fraude.movcon,
+    tipfra: req.body.fraude.tipfra,
+    ejefra: req.body.fraude.ejefra,
+    ofifra: req.body.fraude.ofifra,
+    obsfra: req.body.fraude.obsfra,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, movimiento)
+}
+const deleteFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, movimiento)
+}
+const cambioFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+    liqfra: req.body.fraude.liqfra,
+    liqfra: req.body.fraude.liqfra,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, movimiento)
+}
+const estadisticaFromRec = (req) => {
+  const periodo = {
+    desfec: req.body.periodo.desde,
+    hasfec: req.body.periodo.hasta,
+  }
+
+  return Object.assign({}, periodo)
+}
+const smsFromRec = (req) => {
+  const sms = {
+    texsms: req.body.sms.texsms,
+    movsms: req.body.sms.movsms,
+    stasms: req.body.sms.stasms,
+  }
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(sms, fraude, movimiento)
+}
+
+export const fraude = async (req, res) => {
+  const context = req.body.fraude
 
   try {
-    const { err, dat } = await fraude.getFraudes()
+    const result = await DAL.find(context)
 
-    if (err) {
-      return res.status(404).json(err)
+    if (result.length === 1) {
+      return res.status(200).json(result[0])
     } else {
-      return res.status(200).json({ dat })
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const getFraude = async (req, res) => {
-  const fraude = new Fraude()
-  fraude.id = req.body.idfrau
+export const fraudes = async (req, res) => {
+  const context = req.body.fraude
 
   try {
-    const { err, dat } = await fraude.getFraude()
+    const result = await DAL.findAll(context)
 
-    if (err) {
-      res.status(404).send(err)
+    if (rows !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).send(fraude)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(err)
+  } catch (err) {
+    res.status(400).end()
   }
 }
-export const getFraudeByRef = async (req, res) => {
-  const fraude = new Fraude()
-  fraude.referencia = req.body.referencia
 
+export const crear = async (req, res) => {
   try {
-    const { err, dat } = await fraude.getFraudeByRef()
+    const result = await DAL.insert(insertFromRec(req))
 
-    if (err) {
-      res.status(404).send(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).send(fraude)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(err)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const insertFraude = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const fraude = new Fraude()
-
-  // fraude
-  fraude.fecha = req.body.documento.fecfra
-  fraude.nif = req.body.documento.nifcon
-  fraude.nombre = req.body.documento.nomcon
-  fraude.email = req.body.documento.emacon
-  fraude.telefono = req.body.documento.telcon
-  fraude.movil = req.body.documento.movcon
-  fraude.referencia = req.body.documento.reffra
-  fraude.tipo = req.body.documento.tipfra
-  fraude.ejercicio = req.body.documento.ejefra
-  fraude.oficina = req.body.documento.ofifra
-  fraude.observaciones = req.body.documento.obsfra
-  fraude.funcionario = req.body.documento.funfra
-  fraude.liquidador = req.body.documento.liqfra
-  fraude.estado = req.body.documento.stafra
-  // movimiento
-  fraude.movimiento.usuario = usuarioMov
-  fraude.movimiento.tipo = tipoMov
-
+export const modificar = async (req, res) => {
   try {
-    const { err, dat } = await fraude.insert()
+    const result = await DAL.update(updateFromRec(req))
 
-    if (err) {
-      res.status(408).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(fraude)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const updateFraude = async (req, res) => {
-  const fraude = new Fraude()
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // fraude
-  fraude.id = req.body.documento.idfrau
-  fraude.fecha = req.body.documento.fecfra
-  fraude.nif = req.body.documento.nifcon
-  fraude.nombre = req.body.documento.nomcon
-  fraude.email = req.body.documento.emacon
-  fraude.telefono = req.body.documento.telcon
-  fraude.movil = req.body.documento.movcon
-  fraude.tipo = req.body.documento.tipfra
-  fraude.ejercicio = req.body.documento.ejefra
-  fraude.oficina = req.body.documento.ofifra
-  fraude.observaciones = req.body.documento.obsfra
-  // movimiento
-  fraude.movimiento.usuario = usuarioMov
-  fraude.movimiento.tipo = tipoMov
-
+export const borrar = async (req, res) => {
   try {
-    const { err, dat } = await fraude.update()
+    const result = await DAL.remove(deleteFromRec(req))
 
-    if (err) {
-      res.status(403).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(fraude)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const deleteFraude = async (req, res) => {
-  const fraude = new Fraude()
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // fraude
-  fraude.id = req.body.documento.idfrau
-  // movimiento
-  fraude.movimiento.usuario = usuarioMov
-  fraude.movimiento.tipo = tipoMov
-
+export const cambioEstado = async (req, res) => {
   try {
-    const { err, dat } = await fraude.delete()
+    const result = await DAL.change(cambioFromRec(req))
 
-    if (err) {
-      res.status(403).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(fraude)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const cambioEstadoFraude = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const fraude = new Fraude()
-
-  // fraude
-  fraude.id = req.body.documento.idfrau
-  fraude.liquidador = req.body.documento.liqfra
-  fraude.estado = req.body.documento.stafra
-  // movimiento
-  fraude.movimiento.usuario = usuarioMov
-  fraude.movimiento.tipo = tipoMov
-
+export const estadisticas = async (req, res) => {
   try {
-    const { err, dat } = await fraude.cambioEstado()
+    const result = await DAL.stats(estadisticaFromRec(req))
 
-    if (err) {
-      res.status(403).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(fraude)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const estadisticaFraudes = async (req, res) => {
-  const { desde, hasta } = req.body.periodo
-  const fraude = new Fraude()
-  fraude.periodo = {
-    desde,
-    hasta,
-  }
-
+export const crearSms = async (req, res) => {
   try {
-    const { err, dat } = await fraude.estadistica()
+    const result = await DAL.insertSms(smsFromRec(req))
 
-    if (err) {
-      return res.status(404).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      return res.status(200).json(dat)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const cambioPasswordFraude = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const usuario = new Usuario()
-  const passSalt = await bcrypt.genSalt(10)
-  const passHash = await bcrypt.hash(req.body.usuario.password, passSalt)
-
-  usuario.id = id
-  usuario.password = passHash
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await usuario.cambioPassword()
-
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(200).json(usuario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const updatePerfilFraude = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const usuario = new Usuario()
-
-  usuario.id = req.body.usuario.id
-  usuario.nombre = req.body.usuario.nombre
-  usuario.email = req.body.usuario.email
-  usuario.telefono = req.body.usuario.telefono
-  // movimiento
-  usuario.movimiento.usuario = usuarioMov
-  usuario.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await usuario.updatePerfil()
-
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(200).json(usuario)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const smsFraude = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-  const sms = new SMS()
-
-  // sms
-  sms.texto = req.body.sms.texfra
-  sms.movil = req.body.sms.movfra
-  sms.estado = req.body.sms.stafra
-  // documento
-  sms.idDocumento = req.body.sms.idfrau
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await sms.insert()
-
-    if (err) {
-      res.status(403).json(err)
-    } else {
-      res.status(200).json(sms)
-    }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const referenciaSms = async (req, res) => {
-  const { referencia } = req.body.referencia
-  const sms = new SMS()
-
-  // sms
-  sms.texto = req.body.sms.texto
-  sms.movil = req.body.sms.movil
-  sms.estado = req.body.sms.estado
-  // documento
-  sms.idDocumento = req.body.sms.idDocumento
-  // movimiento
-  sms.movimiento.usuario = usuarioMov
-  sms.movimiento.tipo = tipoMov
-
-  try {
-    const { err, dat } = await sms.insert()
-
-    if (err) {
-      res.status(403).json(err)
-    } else {
-      res.status(200).json(sms)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(403).end()
   }
 }

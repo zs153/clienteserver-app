@@ -28,7 +28,7 @@ const largeQuery = `SELECT
 FROM documentos dd
 INNER JOIN tipos tt ON tt.idtipo = dd.tipdoc
 INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
-WHERE stadoc <= :stadoc
+WHERE dd.stadoc <= :stadoc
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFORMULARIO(
   TO_DATE(:fecdoc,'YYYY-MM-DD'), 
@@ -116,6 +116,10 @@ export const find = async (context) => {
     binds.iddocu = context.iddocu
     query += `WHERE iddocu = :iddocu`
   }
+  if (context.refdoc) {
+    binds.refdoc = context.refdoc
+    query += `WHERE refdoc = :refdoc`
+  }
 
   const result = await simpleExecute(query, binds)
   return result.rows
@@ -124,33 +128,18 @@ export const findAll = async (context) => {
   let query = largeQuery
   let binds = {}
 
-  binds.stadoc = context.stadoc
+  if (!context.stadoc) {
+    return null
+  }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
-export const findByLiq = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  binds.stadoc = context.stadoc
 
   if (context.liqdoc) {
     binds.liqdoc = context.liqdoc
-    query += `WHERE liqdoc = :liqdoc`
+    query += `AND liqdoc = :liqdoc`
   }
-
   const result = await simpleExecute(query, binds)
-  return result.rows
-}
-export const findByRef = async (context) => {
-  let query = baseQuery
-  let binds = {}
 
-  if (context.refdoc) {
-    binds.refdoc = context.refdoc
-    query += `WHERE refdoc = :refdoc`
-  }
-
-  const result = await simpleExecute(query, binds)
   return result.rows
 }
 

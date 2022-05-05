@@ -68,7 +68,7 @@ export const findAll = async (context) => {
   let binds = {}
 
   binds.stasms = context.stasms
-  console.log(query, binds)
+
   const result = await simpleExecute(query, binds)
   return result.rows
 }
@@ -96,7 +96,6 @@ export const insert = async (bind) => {
 
     bind.idsmss = await result.outBinds.idsmss
   } catch (error) {
-    console.log(error)
     bind = null
   }
 
