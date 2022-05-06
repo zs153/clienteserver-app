@@ -1,17 +1,8 @@
-import {
-  find,
-  findAll,
-  findTiposSubtipos,
-  findSubtiposTipo,
-  insert,
-  update,
-  remove,
-} from '../models/subtipo.model'
+import * as DAL from '../models/subtipo.model'
 
 const insertFromRec = (req) => {
   const subtipo = {
     dessub: req.body.subtipo.dessub,
-    idtipo: req.body.subtipo.idtipo,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -44,15 +35,14 @@ const deleteFromRec = (req) => {
   return Object.assign(subtipo, movimiento)
 }
 
-export const getSubtipo = async (req, res) => {
+export const subtipo = async (req, res) => {
+  const context = req.body.subtipo
+
   try {
-    const context = {}
-    context.idsubt = req.body.idsubt
+    const result = await DAL.find(context)
 
-    const rows = await find(context)
-
-    if (rows.length === 1) {
-      return res.status(200).json(rows[0])
+    if (result.length === 1) {
+      return res.status(200).json(result[0])
     } else {
       res.status(404).end()
     }
@@ -60,40 +50,11 @@ export const getSubtipo = async (req, res) => {
     res.status(500).end()
   }
 }
-export const getSubtipos = async (req, res) => {
+export const subtipos = async (req, res) => {
+  const context = req.body.subtipo
+
   try {
-    const rows = await findAll()
-
-    res.status(200).json(rows)
-  } catch (err) {
-    res.status(400).end()
-  }
-}
-export const getTiposSubtipos = async (req, res) => {
-  try {
-    const rows = await findTiposSubtipos()
-
-    return res.status(200).json(rows)
-  } catch (err) {
-    res.status(500).end()
-  }
-}
-export const getSubtiposTipo = async (req, res) => {
-  try {
-    const context = {}
-    context.idtipo = req.body.idtipo
-
-    const rows = await findSubtiposTipo(context)
-
-    return res.status(200).json(rows)
-  } catch (err) {
-    res.status(500).end()
-  }
-}
-
-export const insertSubtipo = async (req, res) => {
-  try {
-    const result = await insert(insertFromRec(req))
+    const result = await DAL.findAll(context)
 
     if (result !== null) {
       res.status(200).json(result)
@@ -104,9 +65,10 @@ export const insertSubtipo = async (req, res) => {
     res.status(500).end()
   }
 }
-export const updateSubtipo = async (req, res) => {
+
+export const crear = async (req, res) => {
   try {
-    const result = await update(updateFromRec(req))
+    const result = await DAL.insert(insertFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
@@ -117,9 +79,22 @@ export const updateSubtipo = async (req, res) => {
     res.status(500).end()
   }
 }
-export const deleteSubtipo = async (req, res) => {
+export const modificar = async (req, res) => {
   try {
-    const result = await remove(deleteFromRec(req))
+    const result = await DAL.update(updateFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const borrar = async (req, res) => {
+  try {
+    const result = await DAL.remove(deleteFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)

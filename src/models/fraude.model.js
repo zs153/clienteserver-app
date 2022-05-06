@@ -44,6 +44,22 @@ INNER JOIN tipos tt ON tt.idtipo = ff.tipfra
 INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
 WHERE ff.stafra <= :stafra
 `
+const hitosFraudeQuery = `SELECT 
+  tt.destip,
+  ss.dessub
+  idhito,
+  TO_CHAR(fechit, 'YYYY-MM-DD') "FECHIT",
+  tiphit,
+  subhit,
+  imphit,
+  obshit,
+  TO_CHAR(fechit, 'DD/MM/YYYY') "STRFEC"
+FROM hitos hh
+INNER JOIN hitosfraude hf ON hf.idhito = hh.idhito
+INNER JOIN tipos tt ON tt.idtipo = hh.tiphit
+INNER JOIN stipos ss ON ss.idsubt = hh.subhit
+WHERE hf.idfrau = :idfrau
+`
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   TO_DATE(:fecfra, 'YYYY-MM-DD'),
   :nifcon,
@@ -152,6 +168,20 @@ export const findAll = async (context) => {
     binds.liqfra = context.liqfra
     query += `AND liqfra = :liqfra`
   }
+  const result = await simpleExecute(query, binds)
+
+  return result.rows
+}
+export const findHitosFraude = async (context) => {
+  let query = hitosFraudeQuery
+  let binds = {}
+
+  if (!context.stafra) {
+    return null
+  }
+
+  binds.idfrau = context.idfrau
+
   const result = await simpleExecute(query, binds)
 
   return result.rows

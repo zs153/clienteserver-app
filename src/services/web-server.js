@@ -12,6 +12,8 @@ import apiGenteRouter from '../routes/gente.router'
 import apiCitaRouter from '../routes/cita.router'
 import apiUsuarioRouter from '../routes/usuario.router'
 import apiFraudeRouter from '../routes/fraude.router'
+import apiTipoRouter from '../routes/tipo.router'
+import apiSubtipoRouter from '../routes/subtipo.router'
 
 let httpServer
 
@@ -36,6 +38,8 @@ function initialize() {
     app.use('/api', apiCitaRouter)
     app.use('/api', apiUsuarioRouter)
     app.use('/api', apiFraudeRouter)
+    app.use('/api', apiTipoRouter)
+    app.use('/api', apiSubtipoRouter)
 
     // server
     httpServer

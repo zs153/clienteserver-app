@@ -8,6 +8,10 @@ import {
   modificar,
   borrar,
   crearSms,
+  hitosFraude,
+  crearHito,
+  modificarHito,
+  borrarHito,
 } from '../controllers/fraude.controller'
 
 const apiFraudeRouter = express.Router()
@@ -21,5 +25,10 @@ apiFraudeRouter.post('/fraudes/delete', borrar)
 apiFraudeRouter.post('/fraudes/cambio', cambioEstado)
 apiFraudeRouter.post('/fraudes/stats', estadisticas)
 apiFraudeRouter.post('/fraudes/sms/insert', crearSms)
+//hitos
+apiFraudeRouter.post('/fraudes/hitos', hitosFraude)
+apiFraudeRouter.post('/fraudes/hitos/insert', crearHito)
+apiFraudeRouter.post('/fraudes/hitos/update', modificarHito)
+apiFraudeRouter.post('/fraudes/hitos/delete', borrarHito)
 
 export default apiFraudeRouter

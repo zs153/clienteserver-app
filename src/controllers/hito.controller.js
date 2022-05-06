@@ -1,122 +1,115 @@
-import Hito from '../models/hito.model'
-import { hitosMovimiento } from '../public/js/enumeraciones'
+import * as DAL from '../models/hito.model'
 
-let hito = new Hito()
+const insertFromRec = (req) => {
+  const hito = {
+    fechit: req.body.hito.fechit,
+    tiphit: req.body.hito.tiphit,
+    subthi: req.body.hito.subthi,
+    imphit: req.body.hito.imphit,
+    obshit: req.body.hito.obshit,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
 
-export const getHitos = async (req, res) => {
-  const { err, dat } = await hito.getHitos()
+  return Object.assign(hito, movimiento)
+}
+const updateFromRec = (req) => {
+  const hito = {
+    idhito: req.body.hito.idhito,
+    fechit: req.body.hito.fechit,
+    tiphit: req.body.hito.tiphit,
+    subthi: req.body.hito.subthi,
+    imphit: req.body.hito.imphit,
+    obshit: req.body.hito.obshit,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(hito, movimiento)
+}
+const deleteFromRec = (req) => {
+  const hito = {
+    idhito: req.body.hito.idhito,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(hito, movimiento)
+}
+
+export const hito = async (req, res) => {
+  const context = req.body.hito
 
   try {
-    if (err) {
-      return res.status(404).json({ err })
+    const result = await DAL.find(context)
+
+    if (result.length === 1) {
+      return res.status(200).json(result[0])
     } else {
-      return res.status(200).json({ dat })
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const getHitosFraude = async (req, res) => {
-  hito.idFraude = req.body.idfrau
+export const hitos = async (req, res) => {
+  const context = req.body.hito
 
   try {
-    const { err, dat } = await hito.getHitosFraude()
+    const result = await DAL.findAll(context)
 
-    if (err) {
-      res.status(402).json(err)
+    if (rows !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(dat)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(400).end()
   }
 }
-export const getHito = async (req, res) => {
-  hito.id = req.body.idhito
 
+export const crear = async (req, res) => {
   try {
-    const { err, dat } = await hito.getHito()
+    const result = await DAL.insert(insertFromRec(req))
 
-    if (err) {
-      res.status(403).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      return res.status(200).json(hito)
+      res.status(404).end()
     }
-  } catch (error) {
-    return res.status(500).json({ err })
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const insertHito = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // hito
-  hito.tipo = req.body.hito.tiphit
-  hito.subTipo = req.body.hito.subthi
-  hito.importe = req.body.hito.imphit
-  hito.observaciones = req.body.hito.obshit
-  // fraude
-  hito.idFraude = req.body.idFraude
-  // movimiento
-  hito.movimiento.usuario = usuarioMov
-  hito.movimiento.tipo = tipoMov
-
+export const modificar = async (req, res) => {
   try {
-    const { err, dat } = await hito.insert()
+    const result = await DAL.update(updateFromRec(req))
 
-    if (err) {
-      res.status(404).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      hito.id = dat.p_idhito
-
-      res.status(200).json(hito)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }
-export const updateHito = async (req, res) => {
-  const { usuarioMov, tipoMov } = req.body.movimiento
-
-  // hito
-  hito.id = req.body.hito.idhito
-  hito.tipo = req.body.hito.tiphit
-  hito.subTipo = req.body.hito.subthi
-  hito.importe = req.body.hito.imphit
-  hito.observaciones = req.body.hito.obshit
-  // movimiento
-  hito.movimiento.usuario = usuarioMov
-  hito.movimiento.tipo = tipoMov
-
+export const borrar = async (req, res) => {
   try {
-    const { err, dat } = await hito.update()
+    const result = await DAL.remove(deleteFromRec(req))
 
-    if (err) {
-      res.status(404).json(err)
+    if (result !== null) {
+      res.status(200).json(result)
     } else {
-      res.status(200).json(hito)
+      res.status(404).end()
     }
-  } catch (error) {
-    res.status(500).json(error)
-  }
-}
-export const deleteHito = async (req, res) => {
-  const { usuarioMov, hitoMov } = req.body.movimiento
-
-  // hito
-  hito.id = req.body.hito.idhito
-  // movimiento
-  hito.movimiento.usuario = usuarioMov
-  hito.movimiento.hito = hitoMov
-
-  try {
-    const { err, dat } = await hito.delete()
-
-    if (err) {
-      res.status(404).json(err)
-    } else {
-      res.status(204).json(hito)
-    }
-  } catch (error) {
-    res.status(500).json(error)
+  } catch (err) {
+    res.status(500).end()
   }
 }

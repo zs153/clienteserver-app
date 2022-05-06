@@ -7,44 +7,68 @@ const baseQuery = `SELECT
 FROM stipos
 `
 const subtiposTipo = `SELECT 
-  st.idtipo,
+  st.idsubt,
   ss.idsubt,
   ss.dessub 
 FROM stipostipo st 
 INNER JOIN stipos ss ON ss.idsubt = st.idsubt 
-WHERE st.idtipo = :idtipo
+WHERE st.idsubt = :idsubt
 `
 const tiposSubtipos = `SELECT 
-  st.idtipo,
+  st.idsubt,
   ss.idsubt,
   ss.dessub 
 FROM stipostipo st 
 INNER JOIN stipos ss ON ss.idsubt = st.idsubt
 `
+const insertSql = `BEGIN FORMULARIOS_PKG.INSERTSTIPO(
+    :dessub,
+    :idsubt, 
+    :usumov,
+    :tipmov,
+    :idsubt
+  ); END;
+`
+const updateSql = `BEGIN FORMULARIOS_PKG.UPDATESTIPO(
+  :idsubt,
+  :dessub,
+  :idtold,
+  :idsubt,
+  :usumov,
+  :tipmov
+); END;
+`
+const deleteSql = `BEGIN FORMULARIOS_PKG.DELETESTIPO(
+    :idsubt,
+    :usumov,
+    :tipmov 
+  ); END;
+`
+
 export const find = async (context) => {
   let query = baseQuery
   let binds = {}
 
-  binds.idsubt = context.idsubt
-
-  query += `WHERE idsubt = :idsubt`
+  if (context.idsubt) {
+    binds.idsubt = context.idsubt
+    query += `WHERE idsubt = :idsubt`
+  }
 
   const result = await simpleExecute(query, binds)
   return result.rows
 }
-export const findAll = async () => {
+export const findAll = async (context) => {
   let query = baseQuery
 
-  query += `ORDER BY dessub`
-
   const result = await simpleExecute(query)
+
   return result.rows
 }
 export const findSubtiposTipo = async (context) => {
   let query = subtiposTipo
   let binds = {}
 
-  binds.idtipo = context.idtipo
+  binds.idsubt = context.idsubt
 
   const result = await simpleExecute(query, binds)
   return result.rows
@@ -55,14 +79,7 @@ export const findTiposSubtipos = async () => {
   const result = await simpleExecute(query)
   return result.rows
 }
-const insertSql = `BEGIN FORMULARIOS_PKG.INSERTSTIPO(
-    :dessub,
-    :idtipo, 
-    :usumov,
-    :tipmov,
-    :idsubt
-  ); END;
-`
+
 export const insert = async (bind) => {
   bind.idsubt = {
     dir: oracledb.BIND_OUT,
@@ -79,15 +96,6 @@ export const insert = async (bind) => {
 
   return bind
 }
-const updateSql = `BEGIN FORMULARIOS_PKG.UPDATESTIPO(
-  :idsubt,
-  :dessub,
-  :idtold,
-  :idtipo,
-  :usumov,
-  :tipmov
-); END;
-`
 export const update = async (bind) => {
   let result
 
@@ -101,17 +109,11 @@ export const update = async (bind) => {
 
   return result
 }
-const deleteSql = `BEGIN FORMULARIOS_PKG.DELETESTIPO(
-    :idsubt,
-    :usumov,
-    :tipmov 
-  ); END;
-`
 export const remove = async (bind) => {
   let result
 
   try {
-    await simpleExecute(deleteSql, bind)
+    await simpleExecute(removeSql, bind)
 
     result = bind
   } catch (error) {

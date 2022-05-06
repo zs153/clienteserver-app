@@ -15,7 +15,7 @@ const insertFromRec = (req) => {
     obsfra: req.body.fraude.obsfra,
     funfra: req.body.fraude.funfra,
     liqfra: req.body.fraude.liqfra,
-    liqfra: req.body.fraude.liqfra,
+    stafra: req.body.fraude.stafra,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -93,6 +93,51 @@ const smsFromRec = (req) => {
 
   return Object.assign(sms, fraude, movimiento)
 }
+const insertHitoFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+  }
+  const hito = {
+    fechit: req.body.hito.fechit,
+    tiphit: req.body.hito.tiphit,
+    subthi: req.body.hito.subthi,
+    imphit: req.body.hito.imphit,
+    obshit: req.body.hito.obshit,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, hito, movimiento)
+}
+const updateHitoFromRec = (req) => {
+  const hito = {
+    idhito: req.body.hito.idhito,
+    fechit: req.body.hito.fechit,
+    tiphit: req.body.hito.tiphit,
+    subthi: req.body.hito.subthi,
+    imphit: req.body.hito.imphit,
+    obshit: req.body.hito.obshit,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(hito, movimiento)
+}
+const deleteHitoFromRec = (req) => {
+  const hito = {
+    idhito: req.body.fraude.idhito,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(hito, movimiento)
+}
 
 export const fraude = async (req, res) => {
   const context = req.body.fraude
@@ -114,6 +159,21 @@ export const fraudes = async (req, res) => {
 
   try {
     const result = await DAL.findAll(context)
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const hitosFraude = async (req, res) => {
+  const context = req.body.fraude
+
+  try {
+    const result = await DAL.findHitosFraude(context)
 
     if (rows !== null) {
       res.status(200).json(result)
@@ -201,5 +261,45 @@ export const crearSms = async (req, res) => {
     }
   } catch (err) {
     res.status(403).end()
+  }
+}
+// hitos
+export const crearHito = async (req, res) => {
+  try {
+    const result = await DAL.insert(insertHitoFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const modificarHito = async (req, res) => {
+  try {
+    const result = await DAL.update(updateHitoFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const borrarHito = async (req, res) => {
+  try {
+    const result = await DAL.remove(deleteHitoFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
   }
 }

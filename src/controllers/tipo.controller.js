@@ -1,4 +1,4 @@
-import { find, findAll, insert, update, remove } from '../models/tipo.model'
+import * as DAL from '../models/tipo.model'
 
 const insertFromRec = (req) => {
   const tipo = {
@@ -39,25 +39,14 @@ const deleteFromRec = (req) => {
   return Object.assign(tipo, movimiento)
 }
 
-export const gettipos = async (req, res) => {
+export const tipo = async (req, res) => {
+  const context = req.body.tipo
+
   try {
-    const rows = await findAll()
+    const result = await DAL.find(context)
 
-    res.status(200).json(rows)
-  } catch (err) {
-    res.status(400).end()
-  }
-}
-export const gettipo = async (req, res) => {
-  try {
-    const context = {}
-
-    context.idtipo = req.body.idtipo
-
-    const rows = await find(context)
-
-    if (rows.length === 1) {
-      return res.status(200).json(rows[0])
+    if (result.length === 1) {
+      return res.status(200).json(result[0])
     } else {
       res.status(404).end()
     }
@@ -65,10 +54,11 @@ export const gettipo = async (req, res) => {
     res.status(500).end()
   }
 }
+export const tipos = async (req, res) => {
+  const context = req.body.tipo
 
-export const inserttipo = async (req, res) => {
   try {
-    const result = await insert(insertFromRec(req))
+    const result = await DAL.findAll(context)
 
     if (result !== null) {
       res.status(200).json(result)
@@ -79,9 +69,10 @@ export const inserttipo = async (req, res) => {
     res.status(500).end()
   }
 }
-export const updatetipo = async (req, res) => {
+
+export const crear = async (req, res) => {
   try {
-    const result = await update(updateFromRec(req))
+    const result = await DAL.insert(insertFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
@@ -92,9 +83,22 @@ export const updatetipo = async (req, res) => {
     res.status(500).end()
   }
 }
-export const deletetipo = async (req, res) => {
+export const modificar = async (req, res) => {
   try {
-    const result = await remove(deleteFromRec(req))
+    const result = await DAL.update(updateFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const borrar = async (req, res) => {
+  try {
+    const result = await DAL.remove(deleteFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
