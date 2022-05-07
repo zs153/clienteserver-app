@@ -71,13 +71,16 @@ export const sms = async (req, res) => {
   }
 }
 export const smss = async (req, res) => {
+  const context = req.body.sms
+
   try {
-    const context = {}
-    context.stasms = req.body.sms.stasms
+    const result = await DAL.findAll(context)
 
-    const rows = await DAL.findAll(context)
-
-    res.status(200).json(rows)
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
   } catch (err) {
     res.status(400).end()
   }

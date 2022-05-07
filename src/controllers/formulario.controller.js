@@ -115,7 +115,7 @@ export const formularios = async (req, res) => {
   try {
     const result = await DAL.findAll(context)
 
-    if (rows !== null) {
+    if (result !== null) {
       res.status(200).json(result)
     } else {
       res.status(404).end()

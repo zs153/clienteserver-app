@@ -3,20 +3,11 @@ import { simpleExecute } from '../services/database.js'
 
 const baseQuery = `SELECT 
   ss.*,
-  dd.refdoc,
+  ff.reffra,
   TO_CHAR(ss.fecsms, 'DD/MM/YYYY') "STRFEC"
 FROM smss ss
-INNER JOIN smssdocumento sd ON sd.idsmss = ss.idsmss
-INNER JOIN documentos dd ON dd.iddocu = sd.iddocu
-`
-const largeQuery = `SELECT 
-  ss.*,
-  dd.refdoc,
-  TO_CHAR(ss.fecsms, 'DD/MM/YYYY') "STRFEC"
-FROM smss ss
-INNER JOIN smssdocumento sd ON sd.idsmss = ss.idsmss
-INNER JOIN documentos dd ON dd.iddocu = sd.iddocu
-WHERE stasms <= :stasms
+INNER JOIN smssfraude sf ON sf.idsmss = ss.idsmss
+INNER JOIN fraudes ff ON ff.idfrau = sf.idfrau
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTSMS(
   :texsms, 
@@ -64,10 +55,11 @@ export const find = async (context) => {
   return result.rows
 }
 export const findAll = async (context) => {
-  let query = largeQuery
+  let query = baseQuery
   let binds = {}
 
   binds.stasms = context.stasms
+  query += `WHERE ss.stasms <= :stasms`
 
   const result = await simpleExecute(query, binds)
   return result.rows

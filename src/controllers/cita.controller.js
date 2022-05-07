@@ -1,4 +1,4 @@
-import * as DAL from "../models/cita.model";
+import * as DAL from '../models/cita.model'
 
 const insertFromRec = (req) => {
   const documento = {
@@ -13,54 +13,54 @@ const insertFromRec = (req) => {
     notcit: req.body.documento.notcit,
     obscit: req.body.documento.obscit,
     stacit: req.body.documento.stacit,
-  };
+  }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
+  }
 
-  return Object.assign(documento, movimiento);
-};
+  return Object.assign(documento, movimiento)
+}
 const updateFromRec = (req) => {
   const documento = {
     idcita: req.body.cita.idcita,
     obscit: req.body.cita.obscit,
-  };
+  }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
+  }
 
-  return Object.assign(documento, movimiento);
-};
+  return Object.assign(documento, movimiento)
+}
 const deleteFromRec = (req) => {
   const documento = {
     idcita: req.body.documento.idcita,
-  };
+  }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
+  }
 
-  return Object.assign(documento, movimiento);
-};
+  return Object.assign(documento, movimiento)
+}
 const cambioFromRec = (req) => {
   const documento = {
     idcita: req.body.documento.idcita,
     stacit: req.body.documento.stacit,
-  };
+  }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
+  }
 
-  return Object.assign(documento, movimiento);
-};
+  return Object.assign(documento, movimiento)
+}
 const asignarFromRec = (req) => {
   const cita = {
     idcita: req.body.cita.idcita,
     stacit: req.body.cita.stacit,
-  };
+  }
   const formulario = {
     fecdoc: req.body.formulario.fecdoc,
     nifcon: req.body.formulario.nifcon,
@@ -76,107 +76,107 @@ const asignarFromRec = (req) => {
     fundoc: req.body.formulario.fundoc,
     liqdoc: req.body.formulario.liqdoc,
     stadoc: req.body.formulario.stadoc,
-  };
+  }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
-  };
+  }
 
-  return Object.assign(cita, formulario, movimiento);
-};
+  return Object.assign(cita, formulario, movimiento)
+}
 
 export const cita = async (req, res) => {
+  const context = req.body.cita
+
   try {
-    const context = {};
-    context.idcita = req.body.idcita;
-
-    const rows = await DAL.find(context);
-
-    if (rows.length === 1) {
-      return res.status(200).json(rows[0]);
+    const result = await DAL.find(context)
+    if (result.length === 1) {
+      return res.status(200).json(result[0])
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}
 export const citas = async (req, res) => {
+  const context = req.body.cita
+
   try {
-    const context = {};
-    context.stacit = req.body.cita.stacit;
-    context.oficit = req.body.cita.oficit;
+    const result = await DAL.findAll(context)
 
-    const rows = await DAL.findAll(context);
-
-    res.status(200).json(rows);
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
   } catch (err) {
-    res.status(400).end();
+    res.status(500).end()
   }
-};
+}
 
 export const crear = async (req, res) => {
   try {
-    const result = await DAL.insert(insertFromRec(req));
+    const result = await DAL.insert(insertFromRec(req))
 
     if (result !== null) {
-      res.status(200).json(result);
+      res.status(200).json(result)
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}
 export const modificar = async (req, res) => {
   try {
-    const result = await DAL.update(updateFromRec(req));
+    const result = await DAL.update(updateFromRec(req))
 
     if (result !== null) {
-      res.status(200).json(result);
+      res.status(200).json(result)
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}
 export const borrar = async (req, res) => {
   try {
-    const result = await DAL.remove(deleteFromRec(req));
+    const result = await DAL.remove(deleteFromRec(req))
 
     if (result !== null) {
-      res.status(200).json(result);
+      res.status(200).json(result)
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}
 export const cambioEstado = async (req, res) => {
   try {
-    const result = await DAL.change(cambioFromRec(req));
+    const result = await DAL.change(cambioFromRec(req))
 
     if (result !== null) {
-      res.status(200).json(result);
+      res.status(200).json(result)
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}
 export const citaToFormulario = async (req, res) => {
   try {
-    const result = await DAL.asignar(asignarFromRec(req));
+    const result = await DAL.asignar(asignarFromRec(req))
 
     if (result !== null) {
-      res.status(200).json(result);
+      res.status(200).json(result)
     } else {
-      res.status(404).end();
+      res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end();
+    res.status(500).end()
   }
-};
+}

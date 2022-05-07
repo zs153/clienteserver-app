@@ -24,7 +24,7 @@ const largeQuery = `SELECT
   oo.desofi,
   tt.destip,
   idfrau,
-  TO_CHAR(fecfra, 'YYYY-MM-DD') "FECFRA",
+  fecfra,
   nifcon,
   nomcon,
   emacon,
@@ -127,7 +127,7 @@ INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
 GROUP BY desofi
 ORDER BY desofi
 `
-const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMS(
+const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMSFRAUDE(
   :texsms,
   :movsms,
   :stasms,
@@ -168,6 +168,7 @@ export const findAll = async (context) => {
     binds.liqfra = context.liqfra
     query += `AND liqfra = :liqfra`
   }
+
   const result = await simpleExecute(query, binds)
 
   return result.rows

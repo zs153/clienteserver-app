@@ -60,7 +60,7 @@ const cambioFromRec = (req) => {
   const fraude = {
     idfrau: req.body.fraude.idfrau,
     liqfra: req.body.fraude.liqfra,
-    liqfra: req.body.fraude.liqfra,
+    stafra: req.body.fraude.stafra,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -78,13 +78,13 @@ const estadisticaFromRec = (req) => {
   return Object.assign({}, periodo)
 }
 const smsFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+  }
   const sms = {
     texsms: req.body.sms.texsms,
     movsms: req.body.sms.movsms,
     stasms: req.body.sms.stasms,
-  }
-  const fraude = {
-    idfrau: req.body.fraude.idfrau,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,

@@ -12,8 +12,8 @@ const largeQuery = `SELECT
   CASE WHEN gg.nifcog IS NULL THEN 'Sí' ELSE 'No' END "COMPLE" FROM citas cc
   INNER JOIN oficinas oo ON oo.idofic = cc.oficit
   LEFT JOIN cognos gg ON gg.nifcog = cc.nifcon
-  WHERE cc.stacit <= :stacit AND 
-    cc.feccit BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) +24/24
+  WHERE cc.stacit <= :stacit
+    AND cc.feccit BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) +:dias +24/24
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTCITA(
   :orgcit, 
@@ -85,7 +85,12 @@ export const findAll = async (context) => {
   let binds = {}
 
   binds.stacit = context.stacit
-  if (context.oficit !== '-1') {
+  binds.dias = 1
+
+  if (context.dias) {
+    binds.dias = context.dias
+  }
+  if (context.oficit !== '0') {
     binds.oficit = context.oficit
     query += `AND cc.oficit = :oficit
     `
