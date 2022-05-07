@@ -58,7 +58,7 @@ export const insert = async (bind) => {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   }
-
+  console.log(insertSql, bind)
   try {
     const result = await simpleExecute(insertSql, bind)
 
