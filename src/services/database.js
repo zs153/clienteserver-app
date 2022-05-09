@@ -24,7 +24,6 @@ const simpleExecute = (sql, binds = [], opts = {}) => {
 
       resolve(result)
     } catch (error) {
-      console.log('first', error)
       reject(null)
     } finally {
       if (conn) {

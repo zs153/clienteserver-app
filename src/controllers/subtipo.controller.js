@@ -69,7 +69,6 @@ export const subtipos = async (req, res) => {
 }
 
 export const crear = async (req, res) => {
-  console.log(insertFromRec(req))
   try {
     const result = await DAL.insert(insertFromRec(req))
 
@@ -79,7 +78,6 @@ export const crear = async (req, res) => {
       res.status(404).end()
     }
   } catch (err) {
-    console.log(err)
     res.status(500).end()
   }
 }
@@ -93,7 +91,6 @@ export const modificar = async (req, res) => {
       res.status(404).end()
     }
   } catch (err) {
-    console.log(err)
     res.status(500).end()
   }
 }

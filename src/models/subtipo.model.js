@@ -78,7 +78,6 @@ export const insert = async (bind) => {
 
     bind.idsubt = await result.outBinds.idsubt
   } catch (error) {
-    console.log(error)
     bind = null
   }
 
@@ -105,7 +104,6 @@ export const remove = async (bind) => {
 
     result = bind
   } catch (error) {
-    console.log(error)
     result = null
   }
 
