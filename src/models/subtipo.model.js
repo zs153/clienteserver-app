@@ -2,28 +2,16 @@ import oracledb from 'oracledb'
 import { simpleExecute } from '../services/database.js'
 
 const baseQuery = `SELECT 
-  idsubt,
-  dessub
-FROM stipos
-`
-const subtiposTipo = `SELECT 
-  st.idsubt,
   ss.idsubt,
-  ss.dessub 
-FROM stipostipo st 
-INNER JOIN stipos ss ON ss.idsubt = st.idsubt 
-WHERE st.idsubt = :idsubt
-`
-const tiposSubtipos = `SELECT 
-  st.idsubt,
-  ss.idsubt,
-  ss.dessub 
-FROM stipostipo st 
-INNER JOIN stipos ss ON ss.idsubt = st.idsubt
+  ss.dessub,
+  ss.idtipo,
+  tt.destip
+FROM stipos ss
+INNER JOIN tipos tt ON tt.idtipo = ss.idtipo
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTSTIPO(
     :dessub,
-    :idsubt, 
+    :idtipo, 
     :usumov,
     :tipmov,
     :idsubt
@@ -32,13 +20,12 @@ const insertSql = `BEGIN FORMULARIOS_PKG.INSERTSTIPO(
 const updateSql = `BEGIN FORMULARIOS_PKG.UPDATESTIPO(
   :idsubt,
   :dessub,
-  :idtold,
-  :idsubt,
+  :idtipo,
   :usumov,
   :tipmov
 ); END;
 `
-const deleteSql = `BEGIN FORMULARIOS_PKG.DELETESTIPO(
+const removeSql = `BEGIN FORMULARIOS_PKG.DELETESTIPO(
     :idsubt,
     :usumov,
     :tipmov 
@@ -91,6 +78,7 @@ export const insert = async (bind) => {
 
     bind.idsubt = await result.outBinds.idsubt
   } catch (error) {
+    console.log(error)
     bind = null
   }
 
@@ -117,6 +105,7 @@ export const remove = async (bind) => {
 
     result = bind
   } catch (error) {
+    console.log(error)
     result = null
   }
 

@@ -3,6 +3,7 @@ import * as DAL from '../models/subtipo.model'
 const insertFromRec = (req) => {
   const subtipo = {
     dessub: req.body.subtipo.dessub,
+    idtipo: req.body.subtipo.idtipo,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -15,6 +16,7 @@ const updateFromRec = (req) => {
   const subtipo = {
     idsubt: req.body.subtipo.idsubt,
     dessub: req.body.subtipo.dessub,
+    idtipo: req.body.subtipo.idtipo,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -67,6 +69,7 @@ export const subtipos = async (req, res) => {
 }
 
 export const crear = async (req, res) => {
+  console.log(insertFromRec(req))
   try {
     const result = await DAL.insert(insertFromRec(req))
 
@@ -76,6 +79,7 @@ export const crear = async (req, res) => {
       res.status(404).end()
     }
   } catch (err) {
+    console.log(err)
     res.status(500).end()
   }
 }
@@ -89,6 +93,7 @@ export const modificar = async (req, res) => {
       res.status(404).end()
     }
   } catch (err) {
+    console.log(err)
     res.status(500).end()
   }
 }
