@@ -1,19 +1,21 @@
-import express from 'express'
+import express from "express";
 import {
   subtipo,
   subtipos,
   crear,
   modificar,
   borrar,
-} from '../controllers/subtipo.controller'
+  subtiposTipo,
+} from "../controllers/subtipo.controller";
 
-const apiSubtipoipoRouter = express.Router()
+const apiSubtipoRouter = express.Router();
 
 // subtipos
-apiSubtipoipoRouter.post('/subtipo', subtipo)
-apiSubtipoipoRouter.post('/subtipos', subtipos)
-apiSubtipoipoRouter.post('/subtipos/insert', crear)
-apiSubtipoipoRouter.post('/subtipos/update', modificar)
-apiSubtipoipoRouter.post('/subtipos/delete', borrar)
+apiSubtipoRouter.post("/subtipo", subtipo);
+apiSubtipoRouter.post("/subtipos", subtipos);
+apiSubtipoRouter.post("/subtipos/tipo", subtiposTipo);
+apiSubtipoRouter.post("/subtipos/insert", crear);
+apiSubtipoRouter.post("/subtipos/update", modificar);
+apiSubtipoRouter.post("/subtipos/delete", borrar);
 
-export default apiSubtipoipoRouter
+export default apiSubtipoRouter;
