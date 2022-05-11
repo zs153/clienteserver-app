@@ -4,10 +4,10 @@ import { simpleExecute } from "../services/database.js";
 const baseQuery = `SELECT 
   ss.idsubt,
   ss.dessub,
-  ss.idtipo,
   tt.destip
 FROM subtipos ss
-INNER JOIN tipos tt ON tt.idtipo = ss.idtipo
+INNER JOIN subtipostipo st ON st.idsubt = ss.idsubt
+INNER JOIN tipos tt ON tt.idtipo = st.idtipo
 `;
 const largeQuery = `SELECT 
   ss.idsubt,
