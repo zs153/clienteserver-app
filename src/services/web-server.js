@@ -14,6 +14,7 @@ import apiUsuarioRouter from '../routes/usuario.router'
 import apiFraudeRouter from '../routes/fraude.router'
 import apiTipoRouter from '../routes/tipo.router'
 import apiSubtipoRouter from '../routes/subtipo.router'
+import apiHitoRouter from '../routes/hito.router'
 
 let httpServer
 
@@ -40,6 +41,7 @@ function initialize() {
     app.use('/api', apiFraudeRouter)
     app.use('/api', apiTipoRouter)
     app.use('/api', apiSubtipoRouter)
+    app.use('/api', apiHitoRouter)
 
     // server
     httpServer
