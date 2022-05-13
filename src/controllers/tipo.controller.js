@@ -5,6 +5,7 @@ const insertFromRec = (req) => {
     destip: req.body.tipo.destip,
     ayutip: req.body.tipo.ayutip,
     orgtip: req.body.tipo.orgtip,
+    tipimp: req.body.tipo.tipimp,
   };
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -19,6 +20,7 @@ const updateFromRec = (req) => {
     destip: req.body.tipo.destip,
     ayutip: req.body.tipo.ayutip,
     orgtip: req.body.tipo.orgtip,
+    tipimp: req.body.tipo.tipimp,
   };
   const movimiento = {
     usumov: req.body.movimiento.usumov,

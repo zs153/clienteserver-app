@@ -5,13 +5,15 @@ const baseQuery = `SELECT
   idtipo,
   destip,
   ayutip,
-  orgtip
+  orgtip,
+  tipimp
 FROM tipos
 `;
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTTIPO(
   :destip,
   :ayutip,
   :orgtip,
+  :tipimp,
   :usumov,
   :tipmov,
   :idtipo
@@ -22,6 +24,7 @@ const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPO(
   :destip,
   :ayutip,
   :orgtip,
+  :tipimp,
   :usumov,
   :tipmov
 ); END;

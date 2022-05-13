@@ -5,6 +5,7 @@ import {
   crear,
   modificar,
   borrar,
+  cambioEstado,
 } from "../controllers/hito.controller";
 
 const apiHitoRouter = express.Router();
@@ -15,5 +16,6 @@ apiHitoRouter.post("/hitos", hitos);
 apiHitoRouter.post("/hitos/insert", crear);
 apiHitoRouter.post("/hitos/update", modificar);
 apiHitoRouter.post("/hitos/delete", borrar);
+apiHitoRouter.post("/hitos/archivado", cambioEstado);
 
 export default apiHitoRouter;
