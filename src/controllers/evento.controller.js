@@ -1,44 +1,44 @@
-import * as DAL from '../models/tipo.model'
+import * as DAL from '../models/evento.model'
 
 const insertFromRec = (req) => {
-  const tipoHitoHito = {
-    desthi: req.body.tipoHitoHito.desthi,
-    anusan: req.body.tipoHitoHito.anusan,
+  const evento = {
+    tipeve: req.body.evento.tipeve,
+    obseve: req.body.evento.obseve,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipoHitoHito, movimiento)
+  return Object.assign(evento, movimiento)
 }
 const updateFromRec = (req) => {
-  const tipoHito = {
-    idthit: req.body.tipoHito.idthit,
-    desthi: req.body.tipoHito.desthi,
-    anusan: req.body.tipoHito.anusan,
+  const evento = {
+    ideven: req.body.evento.ideven,
+    tipeve: req.body.evento.tipeve,
+    obseve: req.body.evento.obseve,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipoHito, movimiento)
+  return Object.assign(evento, movimiento)
 }
 const deleteFromRec = (req) => {
-  const tipoHito = {
-    idthit: req.body.tipoHito.idthit,
+  const evento = {
+    ideven: req.body.evento.ideven,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipoHito, movimiento)
+  return Object.assign(evento, movimiento)
 }
 
-export const tipo = async (req, res) => {
-  const context = req.body.tipoHitoHito
+export const evento = async (req, res) => {
+  const context = req.body.evento
 
   try {
     const result = await DAL.find(context)
@@ -52,19 +52,19 @@ export const tipo = async (req, res) => {
     res.status(500).end()
   }
 }
-export const tipos = async (req, res) => {
-  const context = req.body.tipoHitoHito
+export const eventos = async (req, res) => {
+  const context = req.body.evento
 
   try {
     const result = await DAL.findAll(context)
 
-    if (result !== null) {
+    if (rows !== null) {
       res.status(200).json(result)
     } else {
       res.status(404).end()
     }
   } catch (err) {
-    res.status(500).end()
+    res.status(400).end()
   }
 }
 

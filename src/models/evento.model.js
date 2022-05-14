@@ -2,29 +2,40 @@ import oracledb from 'oracledb'
 import { simpleExecute } from '../services/database.js'
 
 const baseQuery = `SELECT 
-  idthit,
-  desthi,
-  anusan
-FROM tiposhito
+  ideven,
+  TO_CHAR(feceve, 'YYYY-MM-DD') "FECFRA",
+  tipeve,
+  obseve,
+  TO_CHAR(feceve, 'DD/MM/YYYY') "STRFEC"
+FROM eventos
 `
-const insertSql = `BEGIN FORMULARIOS_PKG.INSERTTIPOHITO(
-  :desthi,
-  :anusan,
+const largeQuery = `SELECT 
+  tt.destip,
+  ee.*,
+  TO_CHAR(ff.feceve, 'DD/MM/YYYY') "STRFEC"
+FROM eventos ee
+INNER JOIN tipos tt ON tt.idtipo = ee.tipeve
+`
+const insertSql = `BEGIN FORMULARIOS_PKG.INSERTEVENTO(
+  TO_DATE(:feceve, 'YYYY-MM-DD'),
+  :tipeve,
+  :obseve,
   :usumov,
   :tipmov,
-  :idthit
+  :ideven
 ); END;
 `
-const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOHITO(
-  :idthit,
-  :desthi,
-  :anusan,
+const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEEVENTO(
+  :ideven,
+  TO_DATE(:feceve,'YYYY-MM-DD'),
+  :tipeve, 
+  :obseve,
   :usumov,
-  :tipmov,
+  :tipmov
 ); END;
 `
-const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOHITO(
-  :idthit,
+const removeSql = `BEGIN FORMULARIOS_PKG.DELETEEVENTO(
+  :ideven,
   :usumov,
   :tipmov 
 ); END;
@@ -34,24 +45,24 @@ export const find = async (context) => {
   let query = baseQuery
   let binds = {}
 
-  if (context.idthit) {
-    binds.idthit = context.idthit
-    query += `WHERE idthit = :idthit`
+  if (context.idfrau) {
+    binds.idfrau = context.idfrau
+    query += `WHERE ideven = :ideven`
   }
 
   const result = await simpleExecute(query, binds)
   return result.rows
 }
 export const findAll = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = largeQuery
 
-  const result = await simpleExecute(query, binds)
+  const result = await simpleExecute(query)
+
   return result.rows
 }
 
 export const insert = async (bind) => {
-  bind.idthit = {
+  bind.ideven = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   }
@@ -59,7 +70,7 @@ export const insert = async (bind) => {
   try {
     const result = await simpleExecute(insertSql, bind)
 
-    bind.idthit = await result.outBinds.idthit
+    bind.ideven = await result.outBinds.ideven
   } catch (error) {
     bind = null
   }
