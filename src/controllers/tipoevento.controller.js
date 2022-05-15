@@ -1,44 +1,43 @@
-import * as DAL from '../models/evento.model'
+import * as DAL from '../models/tipoevento.model'
 
 const insertFromRec = (req) => {
-  const evento = {
-    tipeve: req.body.evento.tipeve,
-    obseve: req.body.evento.obseve,
+  const tipo = {
+    destip: req.body.tipo.destip,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(evento, movimiento)
+  return Object.assign(tipo, movimiento)
 }
 const updateFromRec = (req) => {
-  const evento = {
-    ideven: req.body.evento.ideven,
-    tipeve: req.body.evento.tipeve,
-    obseve: req.body.evento.obseve,
+  const tipo = {
+    idtipo: req.body.tipo.idtipo,
+    destip: req.body.tipo.destip,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(evento, movimiento)
+  return Object.assign(tipo, movimiento)
 }
 const deleteFromRec = (req) => {
-  const evento = {
-    ideven: req.body.evento.ideven,
+  const tipo = {
+    idtipo: req.body.tipoHito.idtipo,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(evento, movimiento)
+  return Object.assign(tipo, movimiento)
 }
 
-export const evento = async (req, res) => {
-  const context = req.body.evento
+export const tipo = async (req, res) => {
+  const context = req.body.tipo
+
   try {
     const result = await DAL.find(context)
 
@@ -51,19 +50,19 @@ export const evento = async (req, res) => {
     res.status(500).end()
   }
 }
-export const eventos = async (req, res) => {
-  const context = req.body.evento
+export const tipos = async (req, res) => {
+  const context = req.body.tipo
 
   try {
     const result = await DAL.findAll(context)
 
-    if (rows !== null) {
+    if (result !== null) {
       res.status(200).json(result)
     } else {
       res.status(404).end()
     }
   } catch (err) {
-    res.status(400).end()
+    res.status(500).end()
   }
 }
 
@@ -103,7 +102,6 @@ export const borrar = async (req, res) => {
       res.status(404).end()
     }
   } catch (err) {
-    console.log(err)
     res.status(500).end()
   }
 }

@@ -2,29 +2,29 @@ import oracledb from 'oracledb'
 import { simpleExecute } from '../services/database.js'
 
 const baseQuery = `SELECT 
-  idthit,
-  desthi,
+  idtipo,
+  destip,
   anusan
 FROM tiposhito
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTTIPOHITO(
-  :desthi,
+  :destip,
   :anusan,
   :usumov,
   :tipmov,
-  :idthit
+  :idtipo
 ); END;
 `
 const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOHITO(
-  :idthit,
-  :desthi,
+  :idtipo,
+  :destip,
   :anusan,
   :usumov,
   :tipmov,
 ); END;
 `
 const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOHITO(
-  :idthit,
+  :idtipo,
   :usumov,
   :tipmov 
 ); END;
@@ -34,9 +34,9 @@ export const find = async (context) => {
   let query = baseQuery
   let binds = {}
 
-  if (context.idthit) {
-    binds.idthit = context.idthit
-    query += `WHERE idthit = :idthit`
+  if (context.idtipo) {
+    binds.idtipo = context.idtipo
+    query += `WHERE idtipo = :idtipo`
   }
 
   const result = await simpleExecute(query, binds)
@@ -51,7 +51,7 @@ export const findAll = async (context) => {
 }
 
 export const insert = async (bind) => {
-  bind.idthit = {
+  bind.idtipo = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   }
@@ -59,7 +59,7 @@ export const insert = async (bind) => {
   try {
     const result = await simpleExecute(insertSql, bind)
 
-    bind.idthit = await result.outBinds.idthit
+    bind.idtipo = await result.outBinds.idtipo
   } catch (error) {
     bind = null
   }

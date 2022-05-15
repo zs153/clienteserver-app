@@ -5,7 +5,7 @@ import {
   crear,
   modificar,
   borrar,
-} from '../controllers/tipo.controller'
+} from '../controllers/tipohito.controller'
 
 const apiTipoRouter = express.Router()
 

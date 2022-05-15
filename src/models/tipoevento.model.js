@@ -2,39 +2,26 @@ import oracledb from 'oracledb'
 import { simpleExecute } from '../services/database.js'
 
 const baseQuery = `SELECT 
-  ideven,
-  TO_CHAR(feceve, 'YYYY-MM-DD') "FECFRA",
-  tipeve,
-  obseve,
-  TO_CHAR(feceve, 'DD/MM/YYYY') "STRFEC"
-FROM eventos
+  idtipo,
+  destip
+FROM tiposevento
 `
-const largeQuery = `SELECT 
-  tt.destip,
-  ee.*,
-  TO_CHAR(ff.feceve, 'DD/MM/YYYY') "STRFEC"
-FROM eventos ee
-INNER JOIN tipos tt ON tt.idtipo = ee.tipeve
-`
-const insertSql = `BEGIN FORMULARIOS_PKG.INSERTEVENTO(
-  TO_DATE(:feceve, 'YYYY-MM-DD'),
-  :tipeve,
-  :obseve,
+const insertSql = `BEGIN FORMULARIOS_PKG.INSERTTIPOEVENTO(
+  :destip,
   :usumov,
   :tipmov,
-  :ideven
+  :idtipo
 ); END;
 `
-const updateSql = `BEGIN FORMULARIOS_PKG.UPDATEEVENTO(
-  :ideven,
-  :tipeve, 
-  :obseve,
+const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOEVENTO(
+  :idtipo,
+  :destip,
   :usumov,
-  :tipmov
+  :tipmov,
 ); END;
 `
-const removeSql = `BEGIN FORMULARIOS_PKG.DELETEEVENTO(
-  :ideven,
+const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOEVENTO(
+  :idtipo,
   :usumov,
   :tipmov 
 ); END;
@@ -44,24 +31,24 @@ export const find = async (context) => {
   let query = baseQuery
   let binds = {}
 
-  if (context.ideven) {
-    binds.ideven = context.ideven
-    query += `WHERE ideven = :ideven`
+  if (context.idtipo) {
+    binds.idtipo = context.idtipo
+    query += `WHERE idtipo = :idtipo`
   }
 
   const result = await simpleExecute(query, binds)
   return result.rows
 }
 export const findAll = async (context) => {
-  let query = largeQuery
+  let query = baseQuery
+  let binds = {}
 
-  const result = await simpleExecute(query)
-
+  const result = await simpleExecute(query, binds)
   return result.rows
 }
 
 export const insert = async (bind) => {
-  bind.ideven = {
+  bind.idtipo = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   }
@@ -69,7 +56,7 @@ export const insert = async (bind) => {
   try {
     const result = await simpleExecute(insertSql, bind)
 
-    bind.ideven = await result.outBinds.ideven
+    bind.idtipo = await result.outBinds.idtipo
   } catch (error) {
     bind = null
   }

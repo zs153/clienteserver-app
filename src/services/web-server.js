@@ -12,9 +12,11 @@ import apiGenteRouter from '../routes/gente.router'
 import apiCitaRouter from '../routes/cita.router'
 import apiUsuarioRouter from '../routes/usuario.router'
 import apiFraudeRouter from '../routes/fraude.router'
-import apiTipoRouter from '../routes/tipo.router'
+import apiTipoHitoRouter from '../routes/tipohito.router'
+import apiTipoEventoRouter from '../routes/tipoevento.router'
 import apiSubtipoRouter from '../routes/subtipo.router'
 import apiHitoRouter from '../routes/hito.router'
+import apiEventoRouter from '../routes/evento.router'
 
 let httpServer
 
@@ -39,9 +41,11 @@ function initialize() {
     app.use('/api', apiCitaRouter)
     app.use('/api', apiUsuarioRouter)
     app.use('/api', apiFraudeRouter)
-    app.use('/api', apiTipoRouter)
+    app.use('/api', apiTipoHitoRouter)
+    app.use('/api', apiTipoEventoRouter)
     app.use('/api', apiSubtipoRouter)
     app.use('/api', apiHitoRouter)
+    app.use('/api', apiEventoRouter)
 
     // server
     httpServer

@@ -1,44 +1,44 @@
-import * as DAL from '../models/tipo.model'
+import * as DAL from '../models/tipohito.model'
 
 const insertFromRec = (req) => {
-  const tipoHitoHito = {
-    desthi: req.body.tipoHitoHito.desthi,
-    anusan: req.body.tipoHitoHito.anusan,
+  const tipo = {
+    destip: req.body.tipo.destip,
+    anusan: req.body.tipo.anusan,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipoHitoHito, movimiento)
+  return Object.assign(tipo, movimiento)
 }
 const updateFromRec = (req) => {
-  const tipoHito = {
-    idthit: req.body.tipoHito.idthit,
-    desthi: req.body.tipoHito.desthi,
-    anusan: req.body.tipoHito.anusan,
+  const tipo = {
+    idtipo: req.body.tipo.idtipo,
+    destip: req.body.tipo.destip,
+    anusan: req.body.tipo.anusan,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipoHito, movimiento)
+  return Object.assign(tipo, movimiento)
 }
 const deleteFromRec = (req) => {
-  const tipoHito = {
-    idthit: req.body.tipoHito.idthit,
+  const tipo = {
+    idtipo: req.body.tipo.idtipo,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipoHito, movimiento)
+  return Object.assign(tipo, movimiento)
 }
 
 export const tipo = async (req, res) => {
-  const context = req.body.tipoHitoHito
+  const context = req.body.tipo
 
   try {
     const result = await DAL.find(context)
@@ -53,7 +53,7 @@ export const tipo = async (req, res) => {
   }
 }
 export const tipos = async (req, res) => {
-  const context = req.body.tipoHitoHito
+  const context = req.body.tipo
 
   try {
     const result = await DAL.findAll(context)

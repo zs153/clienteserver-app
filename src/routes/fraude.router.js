@@ -31,7 +31,7 @@ apiFraudeRouter.post('/fraudes/sms/insert', crearSms)
 apiFraudeRouter.post('/fraudes/hitos', hitosFraude)
 apiFraudeRouter.post('/fraudes/hitos/insert', crearHito)
 //eventos
-apiFraudeRouter.post('/fraudes/eventos', eventosFraude)
-apiFraudeRouter.post('/fraudes/eventos/insert', crearEvento)
+apiFraudeRouter.post('/fraudes/events', eventosFraude)
+apiFraudeRouter.post('/fraudes/events/insert', crearEvento)
 
 export default apiFraudeRouter

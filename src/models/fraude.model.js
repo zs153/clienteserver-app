@@ -42,13 +42,13 @@ const largeQuery = `SELECT
   sitfra,
   TO_CHAR(ff.fecfra, 'DD/MM/YYYY') "STRFEC"
 FROM fraudes ff
-INNER JOIN tipos tt ON tt.idtipo = ff.tipfra
+INNER JOIN tiposfraude tt ON tt.idtipo = ff.tipfra
 INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
 LEFT JOIN subtipos st ON st.idsubt = ff.sitfra
 WHERE ff.stafra <= :stafra
 `
 const hitosFraudeQuery = `SELECT 
-  th.desthi,
+  th.destip,
   hh.idhito,
   TO_CHAR(hh.fechit, 'YYYY-MM-DD') "FECHIT",
   hh.tiphit,
@@ -58,7 +58,7 @@ const hitosFraudeQuery = `SELECT
   TO_CHAR(hh.fechit, 'DD/MM/YYYY') "STRFEC"
 FROM hitos hh
 INNER JOIN hitosfraude hf ON hf.idhito = hh.idhito
-INNER JOIN tiposhito th ON th.idthit = hh.tiphit
+INNER JOIN tiposhito th ON th.idtipo = hh.tiphit
 WHERE hf.idfrau = :idfrau
 `
 const eventosFraudeQuery = `SELECT 
@@ -67,7 +67,7 @@ const eventosFraudeQuery = `SELECT
   TO_CHAR(ee.feceve, 'DD/MM/YYYY') "STRFEC"
 FROM eventos ee
 INNER JOIN eventosfraude ef ON ef.ideven = ee.ideven
-INNER JOIN tipos tt ON tt.idtipo = ee.tipeve
+INNER JOIN tiposevento tt ON tt.idtipo = ee.tipeve
 WHERE ef.idfrau = :idfrau
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
@@ -168,16 +168,13 @@ const insertHitoSql = `BEGIN FORMULARIOS_PKG.INSERTHITOFRAUDE(
 `
 const insertEventoSql = `BEGIN FORMULARIOS_PKG.INSERTEVENTOFRAUDE(
   :idfrau,
-  :tiphit,
-  :imphit,
-  :obshit,
-  :stahit,
+  :tipeve,
+  :obseve,
   :usumov,
   :tipmov,
-  :idhito
+  :ideven
 ); END;
 `
-
 export const find = async (context) => {
   let query = baseQuery
   let binds = {}
