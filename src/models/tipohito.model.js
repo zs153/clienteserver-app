@@ -1,94 +1,94 @@
-import oracledb from 'oracledb'
-import { simpleExecute } from '../services/database.js'
+import oracledb from "oracledb";
+import { simpleExecute } from "../services/database.js";
 
 const baseQuery = `SELECT 
   idtipo,
   destip,
-  anusan
+  anuhit
 FROM tiposhito
-`
+`;
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTTIPOHITO(
   :destip,
-  :anusan,
+  :anuhit,
   :usumov,
   :tipmov,
   :idtipo
 ); END;
-`
+`;
 const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOHITO(
   :idtipo,
   :destip,
-  :anusan,
+  :anuhit,
   :usumov,
   :tipmov,
 ); END;
-`
+`;
 const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOHITO(
   :idtipo,
   :usumov,
   :tipmov 
 ); END;
-`
+`;
 
 export const find = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = baseQuery;
+  let binds = {};
 
   if (context.idtipo) {
-    binds.idtipo = context.idtipo
-    query += `WHERE idtipo = :idtipo`
+    binds.idtipo = context.idtipo;
+    query += `WHERE idtipo = :idtipo`;
   }
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 export const findAll = async (context) => {
-  let query = baseQuery
-  let binds = {}
+  let query = baseQuery;
+  let binds = {};
 
-  const result = await simpleExecute(query, binds)
-  return result.rows
-}
+  const result = await simpleExecute(query, binds);
+  return result.rows;
+};
 
 export const insert = async (bind) => {
   bind.idtipo = {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
-  }
+  };
 
   try {
-    const result = await simpleExecute(insertSql, bind)
+    const result = await simpleExecute(insertSql, bind);
 
-    bind.idtipo = await result.outBinds.idtipo
+    bind.idtipo = await result.outBinds.idtipo;
   } catch (error) {
-    bind = null
+    bind = null;
   }
 
-  return bind
-}
+  return bind;
+};
 export const update = async (bind) => {
-  let result
+  let result;
 
   try {
-    await simpleExecute(updateSql, bind)
+    await simpleExecute(updateSql, bind);
 
-    result = bind
+    result = bind;
   } catch (error) {
-    result = null
+    result = null;
   }
 
-  return result
-}
+  return result;
+};
 export const remove = async (bind) => {
-  let result
+  let result;
 
   try {
-    await simpleExecute(removeSql, bind)
+    await simpleExecute(removeSql, bind);
 
-    result = bind
+    result = bind;
   } catch (error) {
-    result = null
+    result = null;
   }
 
-  return result
-}
+  return result;
+};

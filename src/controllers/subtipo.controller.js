@@ -68,21 +68,6 @@ export const subtipos = async (req, res) => {
     res.status(500).end();
   }
 };
-export const subtiposTipo = async (req, res) => {
-  const context = req.body.tipo;
-
-  try {
-    const result = await DAL.findSubtiposTipo(context);
-
-    if (result !== null) {
-      res.status(200).json(result);
-    } else {
-      res.status(404).end();
-    }
-  } catch (err) {
-    res.status(500).end();
-  }
-};
 
 export const crear = async (req, res) => {
   try {
