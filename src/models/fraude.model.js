@@ -1,25 +1,27 @@
 import oracledb from 'oracledb'
 import { simpleExecute } from '../services/database.js'
 
-const baseQuery = `SELECT 
-  idfrau,
-  TO_CHAR(fecfra, 'YYYY-MM-DD') "FECFRA",
-  nifcon,
-  nomcon,
-  emacon,
-  telcon,
-  movcon,
-  reffra,
-  tipfra,
-  ejefra,
-  ofifra,
-  obsfra,
-  funfra,
-  liqfra,
-  stafra,
-  sitfra,
-  TO_CHAR(fecfra, 'DD/MM/YYYY') "STRFEC"
-FROM fraudes
+const baseQuery = `SELECT
+  tf.destip,
+  ff.idfrau,
+  TO_CHAR(ff.fecfra, 'YYYY-MM-DD') "FECFRA",
+  ff.nifcon,
+  ff.nomcon,
+  ff.emacon,
+  ff.telcon,
+  ff.movcon,
+  ff.reffra,
+  ff.tipfra,
+  ff.ejefra,
+  ff.ofifra,
+  ff.obsfra,
+  ff.funfra,
+  ff.liqfra,
+  ff.stafra,
+  ff.sitfra,
+  TO_CHAR(ff.fecfra, 'DD/MM/YYYY') "STRFEC"
+FROM fraudes ff
+INNER JOIN tiposfraude tf ON tf.idtipo = ff.tipfra
 `
 const largeQuery = `SELECT 
   oo.desofi,
@@ -69,6 +71,23 @@ FROM eventos ee
 INNER JOIN eventosfraude ef ON ef.ideven = ee.ideven
 INNER JOIN tiposevento tt ON tt.idtipo = ee.tipeve
 WHERE ef.idfrau = :idfrau
+`
+const estadisticaSql = `SELECT 
+  desofi,
+  SUM(CASE WHEN stafra = 0 THEN 1 ELSE 0) as pend,
+  SUM(CASE WHEN stafra = 1 THEN 1 ELSE 0) as asig,
+  SUM(CASE WHEN stafra = 2 THEN 1 ELSE 0) as resu,
+  SUM(CASE WHEN stafra = 3 THEN 1 ELSE 0) as remi
+FROM (
+  SELECT mf.idfrau FROM movimientos mm
+  INNER JOIN movimientosfraude mf ON mf.idmovi = mm.idmovi
+  WHERE mm.tipmov = 0 AND
+    mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+) p1
+INNER JOIN fraudes ff ON ff.idfrau = p1.idfrau
+INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
+GROUP BY desofi
+ORDER BY desofi
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   TO_DATE(:fecfra, 'YYYY-MM-DD'),
@@ -123,27 +142,12 @@ const cambioSql = `BEGIN FORMULARIOS_PKG.CAMBIOESTADOFRAUDE(
 `
 const situacionSql = `BEGIN FORMULARIOS_PKG.CAMBIOSITUACIONFRAUDE(
   :idfrau,
+  :liqfra,
+  :stafra,
   :sitfra,
   :usumov,
   :tipmov 
 ); END;
-`
-const estadisticaSql = `SELECT 
-  desofi,
-  SUM(CASE WHEN stafra = 0 THEN 1 ELSE 0) as pend,
-  SUM(CASE WHEN stafra = 1 THEN 1 ELSE 0) as asig,
-  SUM(CASE WHEN stafra = 2 THEN 1 ELSE 0) as resu,
-  SUM(CASE WHEN stafra = 3 THEN 1 ELSE 0) as remi
-FROM (
-  SELECT mf.idfrau FROM movimientos mm
-  INNER JOIN movimientosfraude mf ON mf.idmovi = mm.idmovi
-  WHERE mm.tipmov = 0 AND
-    mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
-) p1
-INNER JOIN fraudes ff ON ff.idfrau = p1.idfrau
-INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
-GROUP BY desofi
-ORDER BY desofi
 `
 const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMSFRAUDE(
   :texsms,
@@ -181,11 +185,11 @@ export const find = async (context) => {
 
   if (context.idfrau) {
     binds.idfrau = context.idfrau
-    query += `WHERE idfrau = :idfrau`
+    query += `WHERE ff.idfrau = :idfrau`
   }
   if (context.reffra) {
     binds.reffra = context.reffra
-    query += `WHERE reffra = :reffra`
+    query += `WHERE ff.reffra = :reffra`
   }
 
   const result = await simpleExecute(query, binds)
@@ -203,7 +207,7 @@ export const findAll = async (context) => {
 
   if (context.liqfra) {
     binds.liqfra = context.liqfra
-    query += `AND liqfra = :liqfra`
+    query += `AND ff.liqfra = :liqfra`
   }
 
   const result = await simpleExecute(query, binds)

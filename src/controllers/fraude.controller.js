@@ -73,6 +73,8 @@ const cambioFromRec = (req) => {
 const situacionFromRec = (req) => {
   const fraude = {
     idfrau: req.body.fraude.idfrau,
+    liqfra: req.body.fraude.liqfra,
+    stafra: req.body.fraude.stafra,
     sitfra: req.body.fraude.sitfra,
   }
   const movimiento = {
@@ -224,7 +226,7 @@ export const cambioEstado = async (req, res) => {
 }
 export const cambioSituacion = async (req, res) => {
   try {
-    const result = await DAL.change(situacionFromRec(req))
+    const result = await DAL.situacion(situacionFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
