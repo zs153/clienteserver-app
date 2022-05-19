@@ -25,7 +25,7 @@ const updateFromRec = (req) => {
 };
 const deleteFromRec = (req) => {
   const tipo = {
-    idtipo: req.body.tipoHito.idtipo,
+    idtipo: req.body.tipo.idtipo,
   };
   const movimiento = {
     usumov: req.body.movimiento.usumov,

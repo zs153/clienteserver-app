@@ -1,19 +1,19 @@
-import express from 'express'
+import express from "express";
 import {
   tipo,
   tipos,
   crear,
   modificar,
   borrar,
-} from '../controllers/tipohito.controller'
+} from "../controllers/tipohito.controller";
 
-const apiTipoRouter = express.Router()
+const apiTipoRouter = express.Router();
 
 // tipos
-apiTipoRouter.post('/tipo', tipo)
-apiTipoRouter.post('/tipos', tipos)
-apiTipoRouter.post('/tipos/insert', crear)
-apiTipoRouter.post('/tipos/update', modificar)
-apiTipoRouter.post('/tipos/delete', borrar)
+apiTipoRouter.post("/tipos/hito", tipo);
+apiTipoRouter.post("/tipos/hitos", tipos);
+apiTipoRouter.post("/tipos/hitos/insert", crear);
+apiTipoRouter.post("/tipos/hitos/update", modificar);
+apiTipoRouter.post("/tipos/hitos/delete", borrar);
 
-export default apiTipoRouter
+export default apiTipoRouter;

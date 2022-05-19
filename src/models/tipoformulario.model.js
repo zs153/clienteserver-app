@@ -20,7 +20,7 @@ const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOFORMULARIO(
   :destip,
   :ayutip,
   :usumov,
-  :tipmov,
+  :tipmov
 ); END;
 `
 const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOFORMULARIO(

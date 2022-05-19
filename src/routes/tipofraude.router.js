@@ -10,10 +10,10 @@ import {
 const apiTipoFraude = express.Router();
 
 // tipos
-apiTipoFraude.post("/tipofraude", tipo);
-apiTipoFraude.post("/tiposfraude", tipos);
-apiTipoFraude.post("/tiposfraude/insert", crear);
-apiTipoFraude.post("/tiposfraude/update", modificar);
-apiTipoFraude.post("/tiposfraude/delete", borrar);
+apiTipoFraude.post("/tipos/fraude", tipo);
+apiTipoFraude.post("/tipos/fraudes", tipos);
+apiTipoFraude.post("/tipos/fraudes/insert", crear);
+apiTipoFraude.post("/tipos/fraudes/update", modificar);
+apiTipoFraude.post("/tipos/fraudes/delete", borrar);
 
 export default apiTipoFraude;

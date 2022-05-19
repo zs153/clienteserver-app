@@ -20,7 +20,7 @@ const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOHITO(
   :destip,
   :anuhit,
   :usumov,
-  :tipmov,
+  :tipmov
 ); END;
 `;
 const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOHITO(
