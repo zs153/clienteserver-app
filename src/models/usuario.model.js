@@ -17,14 +17,8 @@ const baseQuery = `SELECT
 const largeQuery = `SELECT 
     uu.idusua,
     uu.nomusu,
-    uu.ofiusu,
-    uu.rolusu,
     uu.userid,
-    uu.emausu,
-    uu.perusu,
     uu.telusu,
-    uu.pwdusu,
-    uu.stausu,
     oo.desofi
   FROM usuarios uu
   INNER JOIN oficinas oo ON oo.idofic = ofiusu
@@ -110,7 +104,7 @@ export const find = async (context) => {
 
   if (context.idusua) {
     binds.idusua = context.idusua;
-    query += "WHERE idusa = :idusua";
+    query += "WHERE idusua = :idusua";
   }
   if (context.userid) {
     binds.userid = context.userid;

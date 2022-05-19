@@ -79,14 +79,16 @@ const cambioFromRec = (req) => {
   return Object.assign(cambio, movimiento)
 }
 const olvidoFromRec = (req) => {
-  const olvido = {
+  const usuario = {
     emausu: req.body.usuario.emausu,
     pwdusu: req.body.usuario.pwdusu,
-    tipmov: req.body.usuario.tipmov,
-    saltus: req.body.usuario.saltus,
+  }
+  const movimiento = {
+    tipmov: req.body.movimiento.tipmov,
+    saltus: req.body.movimiento.saltus,
   }
 
-  return olvido
+  return Object.assign(usuario, movimiento)
 }
 const perfilFromRec = (req) => {
   const perfil = {
@@ -112,8 +114,8 @@ export const usuarios = async (req, res) => {
   }
 }
 export const usuario = async (req, res) => {
-  const context = req.body
-
+  const context = req.body.usuario
+  
   try {
     const rows = await DAL.find(context)
 

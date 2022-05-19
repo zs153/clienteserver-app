@@ -103,7 +103,6 @@ export const borrar = async (req, res) => {
       res.status(404).end()
     }
   } catch (err) {
-    console.log(err)
     res.status(500).end()
   }
 }
