@@ -1,20 +1,21 @@
-import * as Gente from "../models/gente.model";
+import * as DAL from "../models/gente.model";
 
 export const getGente = async (req, res) => {
-  const context = {};
+  let context = {};
   context.nifgen = req.body.nifgen;
 
   if (context.nifgen.length > 9) {
-    context.disgen = nif.slice(-1);
+    context.disgen = context.nifgen.slice(-1);
+    context.nifgen = context.nifgen.slice(0,9);
   }
 
   try {
-    const rows = await Gente.find(context);
+    const rows = await DAL.find(context);
 
     if (rows.length === 1) {
       return res.status(200).json(rows[0]);
     } else {
-      res.status(404).end();
+      return res.status(200).json(rows);
     }
   } catch (err) {
     res.status(500).end();

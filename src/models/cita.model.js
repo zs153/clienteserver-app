@@ -14,6 +14,7 @@ const largeQuery = `SELECT
   LEFT JOIN cognos gg ON gg.nifcog = cc.nifcon
   WHERE cc.stacit <= :stacit
     AND cc.feccit BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) +:dias +24/24
+  ORDER BY cc.oficit, cc.feccit, cc.horcit    
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTCITA(
   :orgcit, 
@@ -90,13 +91,6 @@ export const findAll = async (context) => {
   if (context.dias) {
     binds.dias = context.dias
   }
-  if (context.oficit !== '0') {
-    binds.oficit = context.oficit
-    query += `AND cc.oficit = :oficit
-    `
-  }
-  query += `ORDER BY cc.oficit, cc.feccit, cc.horcit`
-
   const result = await simpleExecute(query, binds)
   return result.rows
 }
