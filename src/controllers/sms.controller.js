@@ -1,13 +1,13 @@
 import * as DAL from '../models/sms.model'
 
 const insertFromRec = (req) => {
+  const formulario = {
+    iddocu: req.body.formulario.iddocu,
+  }
   const sms = {
     texsms: req.body.sms.texsms,
     movsms: req.body.sms.movsms,
     stasms: req.body.sms.stasms,
-  }
-  const formulario = {
-    iddocu: req.body.formulario.iddocu,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,

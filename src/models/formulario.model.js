@@ -26,7 +26,7 @@ const largeQuery = `SELECT
   dd.*,
   TO_CHAR(dd.fecdoc, 'DD/MM/YYYY') "STRFEC"
 FROM documentos dd
-INNER JOIN tipos tt ON tt.idtipo = dd.tipdoc
+INNER JOIN tiposformulario tt ON tt.idtipo = dd.tipdoc
 INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
 WHERE dd.stadoc <= :stadoc
 `
