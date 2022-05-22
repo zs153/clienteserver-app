@@ -17,7 +17,7 @@ const updateSql = `BEGIN FORMULARIOS_PKG.UPDATETIPOEVENTO(
   :idtipo,
   :destip,
   :usumov,
-  :tipmov,
+  :tipmov
 ); END;
 `
 const removeSql = `BEGIN FORMULARIOS_PKG.DELETETIPOEVENTO(

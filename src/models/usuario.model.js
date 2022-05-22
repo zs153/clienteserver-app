@@ -172,7 +172,7 @@ export const register = async (bind) => {
     dir: oracledb.BIND_OUT,
     type: oracledb.NUMBER,
   };
-
+console.log(bind)
   try {
     const result = await simpleExecute(registroSql, bind);
 

@@ -50,7 +50,7 @@ const deleteFromRec = (req) => {
   return Object.assign(usuario, movimiento)
 }
 const registroFromRec = (req) => {
-  const registro = {
+  const usuario = {
     nomusu: req.body.usuario.nomusu,
     ofiusu: req.body.usuario.ofiusu,
     rolusu: req.body.usuario.rolusu,
@@ -61,10 +61,15 @@ const registroFromRec = (req) => {
     stausu: req.body.usuario.stausu,
     pwdusu: req.body.usuario.pwdusu,
     tipmov: req.body.usuario.tipmov,
-    saltus: req.body.usuario.saltus,
+  }
+  const movimiento = {
+    tipmov: req.body.movimiento.tipmov,
+  }
+  const passwd = {
+    saltus: req.body.passwd.saltus,
   }
 
-  return registro
+  return Object.assign(usuario, movimiento, passwd)
 }
 const cambioFromRec = (req) => {
   const cambio = {
@@ -170,7 +175,7 @@ export const remove = async (req, res) => {
 }
 export const registro = async (req, res) => {
   try {
-    const result = await register(registroFromRec(req))
+    const result = await DAL.register(registroFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)

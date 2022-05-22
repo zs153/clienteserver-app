@@ -97,11 +97,11 @@ INNER JOIN oficinas oo ON oo.idofic = dd.ofidoc
 GROUP BY desofi
 ORDER BY desofi
 `
-const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMS(
+const insertSmsSql = `BEGIN FORMULARIOS_PKG.INSERTSMSFORMULARIO(
+  :iddocu,
   :texsms,
   :movsms,
   :stasms,
-  :iddocu,
   :usumov,
   :tipmov,
   :idsmss
@@ -216,7 +216,7 @@ export const insertSms = async (bind) => {
   }
 
   try {
-    const result = await simpleExecute(smsSql, bind)
+    const result = await simpleExecute(insertSmsSql, bind)
 
     bind.idsmss = await result.outBinds.idsmss
   } catch (error) {

@@ -149,11 +149,11 @@ const situacionSql = `BEGIN FORMULARIOS_PKG.CAMBIOSITUACIONFRAUDE(
   :tipmov 
 ); END;
 `
-const smsSql = `BEGIN FORMULARIOS_PKG.INSERTSMSFRAUDE(
+const insertSmsSql = `BEGIN FORMULARIOS_PKG.INSERTSMSFRAUDE(
+  :idfrau,
   :texsms,
   :movsms,
   :stasms,
-  :idfrau,
   :usumov,
   :tipmov,
   :idsmss
@@ -319,7 +319,7 @@ export const insertSms = async (bind) => {
   }
 
   try {
-    const result = await simpleExecute(smsSql, bind)
+    const result = await simpleExecute(insertSmsSql, bind)
 
     bind.idsmss = await result.outBinds.idsmss
   } catch (error) {

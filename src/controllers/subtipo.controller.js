@@ -1,9 +1,6 @@
 import * as DAL from '../models/subtipo.model'
 
 const insertFromRec = (req) => {
-  const tipo = {
-    idtipo: req.body.tipo.idtipo,
-  }
   const subtipo = {
     dessub: req.body.subtipo.dessub,
   }
@@ -12,7 +9,7 @@ const insertFromRec = (req) => {
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(tipo, subtipo, movimiento)
+  return Object.assign(subtipo, movimiento)
 }
 const updateFromRec = (req) => {
   const subtipo = {

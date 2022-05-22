@@ -1,9 +1,6 @@
 import * as DAL from '../models/sms.model'
 
 const insertFromRec = (req) => {
-  const formulario = {
-    iddocu: req.body.formulario.iddocu,
-  }
   const sms = {
     texsms: req.body.sms.texsms,
     movsms: req.body.sms.movsms,
@@ -14,7 +11,7 @@ const insertFromRec = (req) => {
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(sms, formulario, movimiento)
+  return Object.assign(sms, movimiento)
 }
 const updateFromRec = (req) => {
   const sms = {
@@ -30,7 +27,7 @@ const updateFromRec = (req) => {
 
   return Object.assign(sms, movimiento)
 }
-const deleteFromRec = (req) => {
+const deleteFromRec = (req) => {  
   const sms = {
     idsmss: req.body.sms.idsmss,
   }
@@ -55,10 +52,9 @@ const cambioFromRec = (req) => {
 }
 
 export const sms = async (req, res) => {
-  try {
-    let context = {}
-    context.idsmss = req.body.idsmss
+  const context = req.body.sms
 
+  try {
     const rows = await DAL.find(context)
 
     if (rows.length === 1) {

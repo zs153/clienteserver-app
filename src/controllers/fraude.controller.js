@@ -106,7 +106,7 @@ const smsFromRec = (req) => {
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(sms, fraude, movimiento)
+  return Object.assign(fraude, sms, movimiento)
 }
 const insertHitoFromRec = (req) => {
   const fraude = {

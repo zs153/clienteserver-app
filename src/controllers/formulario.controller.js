@@ -91,7 +91,7 @@ const smsFromRec = (req) => {
     tipmov: req.body.movimiento.tipmov,
   }
 
-  return Object.assign(sms, formulario, movimiento)
+  return Object.assign(formulario, sms, movimiento)
 }
 
 export const formulario = async (req, res) => {
