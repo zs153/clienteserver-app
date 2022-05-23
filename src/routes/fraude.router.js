@@ -27,6 +27,7 @@ apiFraudeRouter.post('/fraudes/cambio', cambioEstado)
 apiFraudeRouter.post('/fraudes/situacion', cambioSituacion)
 apiFraudeRouter.post('/fraudes/stats', estadisticas)
 apiFraudeRouter.post('/fraudes/sms/insert', crearSms)
+apiFraudeRouter.post('/fraudes/estadisticas', estadisticas)
 //hitos
 apiFraudeRouter.post('/fraudes/hitos', hitosFraude)
 apiFraudeRouter.post('/fraudes/hitos/insert', crearHito)
