@@ -72,22 +72,87 @@ INNER JOIN eventosfraude ef ON ef.ideven = ee.ideven
 INNER JOIN tiposevento tt ON tt.idtipo = ee.tipeve
 WHERE ef.idfrau = :idfrau
 `
-const estadisticaSql = `SELECT 
-  desofi,
-  SUM(CASE WHEN stafra = 0 THEN 1 ELSE 0) as pend,
-  SUM(CASE WHEN stafra = 1 THEN 1 ELSE 0) as asig,
-  SUM(CASE WHEN stafra = 2 THEN 1 ELSE 0) as resu,
-  SUM(CASE WHEN stafra = 3 THEN 1 ELSE 0) as remi
-FROM (
-  SELECT mf.idfrau FROM movimientos mm
-  INNER JOIN movimientosfraude mf ON mf.idmovi = mm.idmovi
-  WHERE mm.tipmov = 0 AND
-    mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+const estadisticaHitosSql = `SELECT
+SUM(p1.proliq) "PROLIQ",
+SUM(p1.prosan) "PROSAN",
+SUM(p1.liquid) "LIQUID",
+SUM(p1.sancio) "SANCIO",
+SUM(p1.anulad) "ANUSAN",
+SUM(p1.imppli) "IMPPLI",
+SUM(p1.imppsa) "IMPPSA",
+SUM(p1.impliq) "IMPLIQ",
+SUM(p1.impsan) "IMPSAN",
+SUM(p1.impanu) "IMPANU",
+SUM(p1.proliq+p1.prosan+p1.liquid+p1.sancio) "TOT"
+FROM (SELECT hh.tiphit,
+    SUM(CASE WHEN hh.stahit = 1 THEN 1 ELSE 0 END) as proliq,
+    SUM(CASE WHEN hh.stahit = 2 THEN 1 ELSE 0 END) as prosan,
+    SUM(CASE WHEN hh.stahit = 3 THEN 1 ELSE 0 END) as liquid,
+    SUM(CASE WHEN hh.stahit = 4 THEN 1 ELSE 0 END) as sancio,
+    SUM(CASE WHEN hh.stahit = -1 THEN 1 ELSE 0 END) as anulad,
+    SUM(CASE WHEN hh.stahit = 1 THEN hh.imphit ELSE 0 END) as imppli,
+    SUM(CASE WHEN hh.stahit = 2 THEN hh.imphit ELSE 0 END) as imppsa,
+    SUM(CASE WHEN hh.stahit = 3 THEN hh.imphit ELSE 0 END) as impliq,
+    SUM(CASE WHEN hh.stahit = 4 THEN hh.imphit ELSE 0 END) as impsan,
+    SUM(CASE WHEN hh.stahit = -1 THEN hh.imphit ELSE 0 END) as impanu    
+    FROM fraudes ff
+    INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
+    INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
+    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
+    INNER JOIN hitos hh ON hh.idhito = hf.idhito
+    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
+        AND ff.stafra = 2
+        AND ff.tipfra = :tipfra
+        AND mm.tipmov = 27
+    GROUP BY hh.tiphit
 ) p1
-INNER JOIN fraudes ff ON ff.idfrau = p1.idfrau
-INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
-GROUP BY desofi
-ORDER BY desofi
+`
+const estadisticaOficinaSql = `SELECT 
+  oo.desofi,
+  SUM(pend) "PEN",
+  SUM(adju) "ADJ",
+  SUM(resu) "RES",
+  SUM(pend+adju+resu) "TOT"
+  FROM (
+    SELECT ff.ofifra,
+    SUM(CASE WHEN ff.stafra = 0 THEN 1 ELSE 0 END) as pend,
+    SUM(CASE WHEN ff.stafra = 1 THEN 1 ELSE 0 END) as adju,
+    SUM(CASE WHEN ff.stafra = 2 THEN 1 ELSE 0 END) as resu
+    FROM fraudes ff
+    WHERE ff.tipfra = :tipfra
+    GROUP BY ff.ofifra
+) p1
+INNER JOIN oficinas oo ON oo.idofic = p1.ofifra
+GROUP BY oo.desofi
+`
+const estadisticaSituacionSql = `SELECT
+  SUM(CASE WHEN ff.sitfra = 0 THEN 1 ELSE 0 END) "ACTSIT",
+  SUM(CASE WHEN ff.sitfra > 0 THEN 1 ELSE 0 END) "CORSIT"
+  FROM fraudes ff
+  INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
+  INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
+  WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
+    AND ff.stafra = 2
+    AND ff.tipfra = :tipfra
+    AND mm.tipmov = 27
+`
+const estadisticaActuacionSql = `SELECT 
+    ROUND(hh.fechit) "FECHIT", 
+    SUM(CASE WHEN hh.tiphit = 1 THEN 1 ELSE 0 END) "PROLIQ",
+    SUM(CASE WHEN hh.tiphit = 2 THEN 1 ELSE 0 END) "PROSAN",
+    SUM(CASE WHEN hh.tiphit = 3 THEN 1 ELSE 0 END) "LIQUID",
+    SUM(CASE WHEN hh.tiphit = 4 THEN 1 ELSE 0 END) "SANCIO",
+    SUM(CASE WHEN hh.stahit = -1 THEN 1 ELSE 0 END) "ANULAD"
+    FROM fraudes ff
+    INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
+    INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
+    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
+    INNER JOIN hitos hh ON hh.idhito = hf.idhito
+    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
+        AND ff.stafra = 2
+        AND ff.tipfra = :tipfra
+        AND mm.tipmov = 27
+    GROUP BY ROUND(hh.fechit)
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   TO_DATE(:fecfra, 'YYYY-MM-DD'),
@@ -301,16 +366,51 @@ export const situacion = async (bind) => {
 
   return result
 }
-export const stats = async (bind) => {
+export const statHitos = async (bind) => {
   let result
 
   try {
-    result = await simpleExecute(estadisticaSql, bind)
+    result = await simpleExecute(estadisticaHitosSql, bind)
   } catch (error) {
     result = null
   }
 
-  return result
+  return result.rows[0]
+}
+export const statOficinas = async (bind) => {
+  let result
+
+  delete bind.desfec
+  delete bind.hasfec
+  try {
+    result = await simpleExecute(estadisticaOficinaSql, bind)
+  } catch (error) {
+    result = null
+  }
+
+  return result.rows
+}
+export const statSituacion = async (bind) => {
+  let result
+
+  try {
+    result = await simpleExecute(estadisticaSituacionSql, bind)
+  } catch (error) {
+    result = null
+  }
+
+  return result.rows[0]
+}
+export const statActuacion = async (bind) => {
+  let result
+
+  try {
+    result = await simpleExecute(estadisticaActuacionSql, bind)
+  } catch (error) {
+    result = null
+  }
+
+  return result.rows
 }
 export const insertSms = async (bind) => {
   bind.idsmss = {

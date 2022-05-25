@@ -89,8 +89,11 @@ const estadisticaFromRec = (req) => {
     desfec: req.body.periodo.desde,
     hasfec: req.body.periodo.hasta,
   }
+  const tipo = {
+    tipfra: req.body.tipo.tipfra,
+  }
 
-  return Object.assign({}, periodo)
+  return Object.assign(periodo, tipo)
 }
 const smsFromRec = (req) => {
   const fraude = {
@@ -237,9 +240,48 @@ export const cambioSituacion = async (req, res) => {
     res.status(500).end()
   }
 }
-export const estadisticas = async (req, res) => {
+export const estadisticasHitos = async (req, res) => {
   try {
-    const result = await DAL.stats(estadisticaFromRec(req))
+    const result = await DAL.statHitos(estadisticaFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const estadisticasOficinas = async (req, res) => {
+  try {
+    const result = await DAL.statOficinas(estadisticaFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const estadisticasSituacion = async (req, res) => {
+  try {
+    const result = await DAL.statSituacion(estadisticaFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const estadisticasActuacion = async (req, res) => {
+  try {
+    const result = await DAL.statActuacion(estadisticaFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
