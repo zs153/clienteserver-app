@@ -123,11 +123,14 @@ const estadisticaOficinaSql = `SELECT
     GROUP BY ff.ofifra
 ) p1
 INNER JOIN oficinas oo ON oo.idofic = p1.ofifra
-GROUP BY oo.desofi
+GROUP BY ROLLUP(oo.desofi)
 `
 const estadisticaSituacionSql = `SELECT
   SUM(CASE WHEN ff.sitfra = 0 THEN 1 ELSE 0 END) "ACTSIT",
-  SUM(CASE WHEN ff.sitfra > 0 THEN 1 ELSE 0 END) "CORSIT"
+  SUM(CASE WHEN ff.sitfra > 0 THEN 1 ELSE 0 END) "CORSIT",
+  SUM(CASE WHEN ff.sitfra = 1 THEN 1 ELSE 0 END) "ACUERR",
+  SUM(CASE WHEN ff.sitfra = 2 THEN 1 ELSE 0 END) "ACUDEC",
+  SUM(CASE WHEN ff.sitfra = 3 THEN 1 ELSE 0 END) "ACUOTR"
   FROM fraudes ff
   INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
   INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
@@ -137,22 +140,19 @@ const estadisticaSituacionSql = `SELECT
     AND mm.tipmov = 27
 `
 const estadisticaActuacionSql = `SELECT 
-    ROUND(hh.fechit) "FECHIT", 
-    SUM(CASE WHEN hh.tiphit = 1 THEN 1 ELSE 0 END) "PROLIQ",
-    SUM(CASE WHEN hh.tiphit = 2 THEN 1 ELSE 0 END) "PROSAN",
-    SUM(CASE WHEN hh.tiphit = 3 THEN 1 ELSE 0 END) "LIQUID",
-    SUM(CASE WHEN hh.tiphit = 4 THEN 1 ELSE 0 END) "SANCIO",
-    SUM(CASE WHEN hh.stahit = -1 THEN 1 ELSE 0 END) "ANULAD"
-    FROM fraudes ff
-    INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
-    INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
-    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
-    INNER JOIN hitos hh ON hh.idhito = hf.idhito
-    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-        AND ff.stafra = 2
-        AND ff.tipfra = :tipfra
-        AND mm.tipmov = 27
-    GROUP BY ROUND(hh.fechit)
+  TO_CHAR(hh.fechit, 'YYYY-MM-DD') "FECHIT", 
+  SUM(CASE WHEN hh.tiphit = 3 THEN 1 ELSE 0 END) "LIQUID",
+  SUM(CASE WHEN hh.tiphit = 4 THEN 1 ELSE 0 END) "SANCIO",
+  SUM(CASE WHEN hh.stahit = -1 THEN 1 ELSE 0 END) "ANULAD"
+  FROM fraudes ff
+  INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
+  INNER JOIN hitos hh ON hh.idhito = hf.idhito
+  WHERE hh.fechit BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
+      AND ff.stafra = 2
+      AND ff.tipfra = :tipfra
+      AND hh.tiphit = 3 OR hh.tiphit = 4
+  GROUP BY TO_CHAR(hh.fechit, 'YYYY-MM-DD')
+  ORDER BY TO_CHAR(hh.fechit, 'YYYY-MM-DD')
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   TO_DATE(:fecfra, 'YYYY-MM-DD'),
