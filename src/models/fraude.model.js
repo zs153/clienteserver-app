@@ -18,7 +18,6 @@ const baseQuery = `SELECT
   ff.funfra,
   ff.liqfra,
   ff.stafra,
-  ff.sitfra,
   TO_CHAR(ff.fecfra, 'DD/MM/YYYY') "STRFEC"
 FROM fraudes ff
 INNER JOIN tiposfraude tf ON tf.idtipo = ff.tipfra
@@ -41,12 +40,10 @@ const largeQuery = `SELECT
   funfra,
   liqfra,
   stafra,
-  sitfra,
   TO_CHAR(ff.fecfra, 'DD/MM/YYYY') "STRFEC"
 FROM fraudes ff
 INNER JOIN tiposfraude tt ON tt.idtipo = ff.tipfra
 INNER JOIN oficinas oo ON oo.idofic = ff.ofifra
-LEFT JOIN subtipos st ON st.idsubt = ff.sitfra
 WHERE ff.stafra <= :stafra
 `
 const hitosFraudeQuery = `SELECT 
@@ -82,9 +79,9 @@ SUM(p1.imppli) "IMPPLI",
 SUM(p1.imppsa) "IMPPSA",
 SUM(p1.impliq) "IMPLIQ",
 SUM(p1.impsan) "IMPSAN",
-SUM(p1.impanu) "IMPANU",
-SUM(p1.proliq+p1.prosan+p1.liquid+p1.sancio) "TOT"
-FROM (SELECT hh.tiphit,
+SUM(p1.impanu) "IMPANU"
+FROM (
+SELECT hh.tiphit,
     SUM(CASE WHEN hh.stahit = 1 THEN 1 ELSE 0 END) as proliq,
     SUM(CASE WHEN hh.stahit = 2 THEN 1 ELSE 0 END) as prosan,
     SUM(CASE WHEN hh.stahit = 3 THEN 1 ELSE 0 END) as liquid,
@@ -95,15 +92,8 @@ FROM (SELECT hh.tiphit,
     SUM(CASE WHEN hh.stahit = 3 THEN hh.imphit ELSE 0 END) as impliq,
     SUM(CASE WHEN hh.stahit = 4 THEN hh.imphit ELSE 0 END) as impsan,
     SUM(CASE WHEN hh.stahit = -1 THEN hh.imphit ELSE 0 END) as impanu    
-    FROM fraudes ff
-    INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
-    INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
-    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
-    INNER JOIN hitos hh ON hh.idhito = hf.idhito
-    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-        AND ff.stafra = 2
-        AND ff.tipfra = :tipfra
-        AND mm.tipmov = 27
+    FROM hitos hh
+    WHERE hh.fechit BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
     GROUP BY hh.tiphit
 ) p1
 `
@@ -176,7 +166,6 @@ const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   :funfra,
   :liqfra,
   :stafra,
-  :sitfra,
   :usumov,
   :tipmov,
   :idfrau
@@ -212,11 +201,19 @@ const cambioSql = `BEGIN FORMULARIOS_PKG.CAMBIOESTADOFRAUDE(
   :tipmov 
 ); END;
 `
-const situacionSql = `BEGIN FORMULARIOS_PKG.CAMBIOSITUACIONFRAUDE(
+const unasignSql = `BEGIN FORMULARIOS_PKG.UNASIGNFRAUDE(
   :idfrau,
   :liqfra,
   :stafra,
-  :sitfra,
+  :usumov,
+  :tipmov 
+); END;
+`
+const cierreSql = `BEGIN FORMULARIOS_PKG.CIERREFRAUDE(
+  :idfrau,
+  :liqfra,
+  :stafra,
+  :sitcie,
   :usumov,
   :tipmov 
 ); END;
@@ -360,11 +357,24 @@ export const change = async (bind) => {
 
   return result
 }
-export const situacion = async (bind) => {
+export const unasing = async (bind) => {
   let result
 
   try {
-    await simpleExecute(situacionSql, bind)
+    await simpleExecute(unasignSql, bind)
+
+    result = bind
+  } catch (error) {
+    result = null
+  }
+
+  return result
+}
+export const cierre = async (bind) => {
+  let result
+
+  try {
+    await simpleExecute(cierreSql, bind)
 
     result = bind
   } catch (error) {

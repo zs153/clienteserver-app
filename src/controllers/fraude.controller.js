@@ -16,7 +16,6 @@ const insertFromRec = (req) => {
     funfra: req.body.fraude.funfra,
     liqfra: req.body.fraude.liqfra,
     stafra: req.body.fraude.stafra,
-    sitfra: req.body.fraude.sitfra,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -70,12 +69,11 @@ const cambioFromRec = (req) => {
 
   return Object.assign(fraude, movimiento)
 }
-const situacionFromRec = (req) => {
+const unasignFromRec = (req) => {
   const fraude = {
     idfrau: req.body.fraude.idfrau,
     liqfra: req.body.fraude.liqfra,
     stafra: req.body.fraude.stafra,
-    sitfra: req.body.fraude.sitfra,
   }
   const movimiento = {
     usumov: req.body.movimiento.usumov,
@@ -83,6 +81,22 @@ const situacionFromRec = (req) => {
   }
 
   return Object.assign(fraude, movimiento)
+}
+const cierreFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+    liqfra: req.body.fraude.liqfra,
+    stafra: req.body.fraude.stafra,
+  }
+  const cierre = {
+    sitcie: req.body.cierre.sitcie
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, cierre, movimiento)
 }
 const estadisticaFromRec = (req) => {
   const periodo = {
@@ -227,9 +241,22 @@ export const cambioEstado = async (req, res) => {
     res.status(500).end()
   }
 }
-export const cambioSituacion = async (req, res) => {
+export const unasign = async (req, res) => {
   try {
-    const result = await DAL.situacion(situacionFromRec(req))
+    const result = await DAL.unasing(unasignFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const cierre = async (req, res) => {
+  try {
+    const result = await DAL.cierre(cierreFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
