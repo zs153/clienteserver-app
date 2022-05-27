@@ -139,20 +139,27 @@ const estadisticaSituacionSql = `SELECT
     AND ff.tipfra = :tipfra
     AND mm.tipmov = 27
 `
-const estadisticaActuacionSql = `SELECT 
-  TO_CHAR(hh.fechit, 'YYYY-MM-DD') "FECHIT", 
-  SUM(CASE WHEN hh.tiphit = 3 THEN 1 ELSE 0 END) "LIQUID",
-  SUM(CASE WHEN hh.tiphit = 4 THEN 1 ELSE 0 END) "SANCIO",
-  SUM(CASE WHEN hh.stahit = -1 THEN 1 ELSE 0 END) "ANULAD"
-  FROM fraudes ff
-  INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
-  INNER JOIN hitos hh ON hh.idhito = hf.idhito
-  WHERE hh.fechit BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-      AND ff.stafra = 2
-      AND ff.tipfra = :tipfra
-      AND hh.tiphit = 3 OR hh.tiphit = 4
-  GROUP BY TO_CHAR(hh.fechit, 'YYYY-MM-DD')
-  ORDER BY TO_CHAR(hh.fechit, 'YYYY-MM-DD')
+const estadisticaActuacionSql = `SELECT TO_CHAR(fecmov, 'DD/MM/RR') "FEC",
+  SUM(CASE WHEN sta = 3 THEN 1 ELSE 0 END) "LIQ",
+  SUM(CASE WHEN sta = 4 THEN 1 ELSE 0 END) "SAN",
+  SUM(CASE WHEN sit > 0 THEN 1 ELSE 0 END) "COR"
+  FROM (
+    SELECT mm.fecmov, hh.stahit AS sta, 0 AS sit
+    FROM hitos hh
+    INNER JOIN movimientoshito mh ON mh.idhito = hh.idhito
+    INNER JOIN movimientos mm ON mm.idmovi = mh.idmovi
+    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
+        AND hh.stahit = 3 OR hh.stahit = 4
+    UNION ALL
+    SELECT mm.fecmov, 0 AS sta, ff.sitfra AS sit
+    FROM fraudes ff
+    INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
+    INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
+    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
+        AND ff.stafra = 2 and ff.sitfra > 0
+  )
+  GROUP BY TO_CHAR(fecmov, 'DD/MM/RR')
+  ORDER BY TO_CHAR(fecmov, 'DD/MM/RR')
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   TO_DATE(:fecfra, 'YYYY-MM-DD'),
@@ -404,6 +411,7 @@ export const statSituacion = async (bind) => {
 export const statActuacion = async (bind) => {
   let result
 
+  delete bind.tipfra
   try {
     result = await simpleExecute(estadisticaActuacionSql, bind)
   } catch (error) {
