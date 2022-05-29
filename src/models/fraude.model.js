@@ -70,18 +70,17 @@ INNER JOIN tiposevento tt ON tt.idtipo = ee.tipeve
 WHERE ef.idfrau = :idfrau
 `
 const estadisticaHitosSql = `SELECT
-SUM(p1.proliq) "PROLIQ",
-SUM(p1.prosan) "PROSAN",
-SUM(p1.liquid) "LIQUID",
-SUM(p1.sancio) "SANCIO",
-SUM(p1.anulad) "ANUSAN",
-SUM(p1.imppli) "IMPPLI",
-SUM(p1.imppsa) "IMPPSA",
-SUM(p1.impliq) "IMPLIQ",
-SUM(p1.impsan) "IMPSAN",
-SUM(p1.impanu) "IMPANU"
-FROM (
-SELECT hh.tiphit,
+    SUM(p1.proliq) "PROLIQ",
+    SUM(p1.prosan) "PROSAN",
+    SUM(p1.liquid) "LIQUID",
+    SUM(p1.sancio) "SANCIO",
+    SUM(p1.anulad) "ANUSAN",
+    SUM(p1.imppli) "IMPPLI",
+    SUM(p1.imppsa) "IMPPSA",
+    SUM(p1.impliq) "IMPLIQ",
+    SUM(p1.impsan) "IMPSAN",
+    SUM(p1.impanu) "IMPANU"
+FROM (SELECT TRUNC(hh.fechit),
     SUM(CASE WHEN hh.stahit = 1 THEN 1 ELSE 0 END) as proliq,
     SUM(CASE WHEN hh.stahit = 2 THEN 1 ELSE 0 END) as prosan,
     SUM(CASE WHEN hh.stahit = 3 THEN 1 ELSE 0 END) as liquid,
@@ -92,9 +91,13 @@ SELECT hh.tiphit,
     SUM(CASE WHEN hh.stahit = 3 THEN hh.imphit ELSE 0 END) as impliq,
     SUM(CASE WHEN hh.stahit = 4 THEN hh.imphit ELSE 0 END) as impsan,
     SUM(CASE WHEN hh.stahit = -1 THEN hh.imphit ELSE 0 END) as impanu    
-    FROM hitos hh
-    WHERE hh.fechit BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-    GROUP BY hh.tiphit
+    FROM fcierres fc
+    INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
+    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
+    INNER JOIN hitos hh ON hh.idhito = hf.idhito
+    WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+        AND ff.tipfra = :tipfra
+    GROUP BY TRUNC(hh.fechit)
 ) p1
 `
 const estadisticaOficinaSql = `SELECT 
@@ -116,40 +119,37 @@ INNER JOIN oficinas oo ON oo.idofic = p1.ofifra
 GROUP BY ROLLUP(oo.desofi)
 `
 const estadisticaSituacionSql = `SELECT
-  SUM(CASE WHEN ff.sitfra = 0 THEN 1 ELSE 0 END) "ACTSIT",
-  SUM(CASE WHEN ff.sitfra > 0 THEN 1 ELSE 0 END) "CORSIT",
-  SUM(CASE WHEN ff.sitfra = 1 THEN 1 ELSE 0 END) "ACUERR",
-  SUM(CASE WHEN ff.sitfra = 2 THEN 1 ELSE 0 END) "ACUDEC",
-  SUM(CASE WHEN ff.sitfra = 3 THEN 1 ELSE 0 END) "ACUOTR"
-  FROM fraudes ff
-  INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
-  INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
-  WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-    AND ff.stafra = 2
+  SUM(CASE WHEN sitcie = 0 THEN 1 ELSE 0 END) "ACTUAC",
+  SUM(CASE WHEN sitcie > 0 THEN 1 ELSE 0 END) "CORREC",
+  SUM(CASE WHEN sitcie = 1 THEN 1 ELSE 0 END) "ACUERR",
+  SUM(CASE WHEN sitcie = 2 THEN 1 ELSE 0 END) "ACUDEC",
+  SUM(CASE WHEN sitcie = 3 THEN 1 ELSE 0 END) "ACUOTR",
+  COUNT(*) "TOTAL"
+  FROM fcierres fc
+  INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
+  WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
     AND ff.tipfra = :tipfra
-    AND mm.tipmov = 27
 `
-const estadisticaActuacionSql = `SELECT TO_CHAR(fecmov, 'DD/MM/RR') "FEC",
+const estadisticaActuacionSql = `SELECT fec "FEC",
   SUM(CASE WHEN sta = 3 THEN 1 ELSE 0 END) "LIQ",
   SUM(CASE WHEN sta = 4 THEN 1 ELSE 0 END) "SAN",
   SUM(CASE WHEN sit > 0 THEN 1 ELSE 0 END) "COR"
-  FROM (
-    SELECT mm.fecmov, hh.stahit AS sta, 0 AS sit
-    FROM hitos hh
-    INNER JOIN movimientoshito mh ON mh.idhito = hh.idhito
-    INNER JOIN movimientos mm ON mm.idmovi = mh.idmovi
-    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-        AND hh.stahit = 3 OR hh.stahit = 4
+  FROM (SELECT TRUNC(fc.feccie) as fec, hh.stahit as sta, 0 AS sit    
+    FROM fcierres fc
+    INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
+    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
+    INNER JOIN hitos hh ON hh.idhito = hf.idhito
+    WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+        AND ff.tipfra = :tipfra
     UNION ALL
-    SELECT mm.fecmov, 0 AS sta, ff.sitfra AS sit
-    FROM fraudes ff
-    INNER JOIN movimientosfraude mf ON mf.idfrau = ff.idfrau
-    INNER JOIN movimientos mm ON mm.idmovi = mf.idmovi
-    WHERE mm.fecmov BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24 
-        AND ff.stafra = 2 and ff.sitfra > 0
-  )
-  GROUP BY TO_CHAR(fecmov, 'DD/MM/RR')
-  ORDER BY TO_CHAR(fecmov, 'DD/MM/RR')
+    SELECT TRUNC(fc.feccie) as fec, 0 as sta, sitcie as sit
+    FROM fcierres fc
+    INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
+    WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+        AND ff.tipfra = :tipfra
+)
+GROUP BY fec
+ORDER BY fec
 `
 const insertSql = `BEGIN FORMULARIOS_PKG.INSERTFRAUDE(
   TO_DATE(:fecfra, 'YYYY-MM-DD'),
@@ -421,7 +421,6 @@ export const statSituacion = async (bind) => {
 export const statActuacion = async (bind) => {
   let result
 
-  delete bind.tipfra
   try {
     result = await simpleExecute(estadisticaActuacionSql, bind)
   } catch (error) {
