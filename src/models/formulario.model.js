@@ -72,6 +72,31 @@ const removeSql = `BEGIN FORMULARIOS_PKG.DELETEFORMULARIO(
   :tipmov 
 ); END;
 `
+const estadisticaFormulariosSql = `SELECT TRUNC(dd.fecdoc) "FEC",
+  COUNT(*) "NUM""
+  FROM documentos dd
+  WHERE dd.fecdoc BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+      AND dd.tipdoc = :tipdoc
+  GROUP BY TRUNC(dd.fecdoc)
+`
+const estadisticaOficinaSql = `SELECT 
+  oo.desofi,
+  SUM(pend) "PEN",
+  SUM(adju) "ADJ",
+  SUM(resu) "RES",
+  SUM(pend+adju+resu) "TOT"
+  FROM (
+    SELECT dd.ofidoc,
+    SUM(CASE WHEN dd.stadoc = 0 THEN 1 ELSE 0 END) as pend,
+    SUM(CASE WHEN dd.stadoc = 1 THEN 1 ELSE 0 END) as adju,
+    SUM(CASE WHEN dd.stadoc = 2 THEN 1 ELSE 0 END) as resu
+    FROM documentos dd
+    WHERE dd.tipdoc = :tipdoc
+    GROUP BY dd.ofidoc
+) p1
+INNER JOIN oficinas oo ON oo.idofic = p1.ofidoc
+GROUP BY ROLLUP(oo.desofi)
+`
 const cambioSql = `BEGIN FORMULARIOS_PKG.CAMBIOESTADOFORMULARIO(
   :iddocu,
   :liqdoc,
@@ -142,7 +167,30 @@ export const findAll = async (context) => {
 
   return result.rows
 }
+export const statFormularios = async (bind) => {
+  let result
 
+  try {
+    result = await simpleExecute(estadisticaFormulariosSql, bind)
+  } catch (error) {
+    result = null
+  }
+
+  return result.rows[0]
+}
+export const statOficinas = async (bind) => {
+  let result
+
+  delete bind.desfec
+  delete bind.hasfec
+  try {
+    result = await simpleExecute(estadisticaOficinaSql, bind)
+  } catch (error) {
+    result = null
+  }
+
+  return result.rows
+}
 export const insert = async (bind) => {
   bind.iddocu = {
     dir: oracledb.BIND_OUT,

@@ -134,20 +134,30 @@ const estadisticaActuacionSql = `SELECT fec "FEC",
   SUM(CASE WHEN sta = 3 THEN 1 ELSE 0 END) "LIQ",
   SUM(CASE WHEN sta = 4 THEN 1 ELSE 0 END) "SAN",
   SUM(CASE WHEN sit > 0 THEN 1 ELSE 0 END) "COR"
-  FROM (SELECT TRUNC(fc.feccie) as fec, hh.stahit as sta, 0 AS sit    
-    FROM fcierres fc
-    INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
-    INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
-    INNER JOIN hitos hh ON hh.idhito = hf.idhito
-    WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+  FROM
+  (
+  WITH vDates AS (
+    SELECT TO_DATE(:desfec,'YYYY-MM-DD') + ROWNUM - 1 AS fecha
+    FROM dual
+    CONNECT BY rownum <= TO_DATE(:hasfec,'YYYY-MM-DD') - TO_DATE(:desfec,'YYYY-MM-DD') + 1
+  )
+  SELECT v.fecha as fec, -1 as sta, -1 as sit
+  FROM vDates v
+  UNION ALL
+  SELECT TRUNC(fc.feccie) as fec, hh.stahit as sta, 0 AS sit    
+      FROM fcierres fc
+      INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
+      INNER JOIN hitosfraude hf ON hf.idfrau = ff.idfrau
+      INNER JOIN hitos hh ON hh.idhito = hf.idhito
+      WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
         AND ff.tipfra = :tipfra
-    UNION ALL
-    SELECT TRUNC(fc.feccie) as fec, 0 as sta, sitcie as sit
-    FROM fcierres fc
-    INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
-    WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
+      UNION ALL
+      SELECT TRUNC(fc.feccie) as fec, 0 as sta, sitcie as sit
+      FROM fcierres fc
+      INNER JOIN fraudes ff ON ff.idfrau = fc.idfrau
+      WHERE fc.feccie BETWEEN TO_DATE(:desfec, 'YYYY-MM-DD') AND TO_DATE(:hasfec, 'YYYY-MM-DD') +24/24
         AND ff.tipfra = :tipfra
-)
+  ) p1
 GROUP BY fec
 ORDER BY fec
 `

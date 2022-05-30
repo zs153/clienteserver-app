@@ -8,6 +8,8 @@ import {
   modificar,
   borrar,
   crearSms,
+  estadisticasFormularios,
+  estadisticasOficinas,
 } from '../controllers/formulario.controller'
 
 const apiFormularioRouter = express.Router()
@@ -21,5 +23,7 @@ apiFormularioRouter.post('/formularios/delete', borrar)
 apiFormularioRouter.post('/formularios/cambio', cambioEstado)
 apiFormularioRouter.post('/formularios/stats', estadisticas)
 apiFormularioRouter.post('/formularios/sms/insert', crearSms)
+apiFormularioRouter.post('/fraudes/stat/formularios', estadisticasFormularios)
+apiFormularioRouter.post('/fraudes/stat/oficinas', estadisticasOficinas)
 
 export default apiFormularioRouter

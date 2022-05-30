@@ -74,8 +74,11 @@ const estadisticaFromRec = (req) => {
     desfec: req.body.periodo.desde,
     hasfec: req.body.periodo.hasta,
   }
+  const tipo = {
+    tipdoc: req.body.tipo.tipdoc,
+  }
 
-  return Object.assign({}, periodo)
+  return Object.assign(periodo, tipo)
 }
 const smsFromRec = (req) => {
   const formulario = {
@@ -124,7 +127,32 @@ export const formularios = async (req, res) => {
     res.status(400).end()
   }
 }
+export const estadisticasFormularios = async (req, res) => {
+  try {
+    const result = await DAL.statFormularios(estadisticaFromRec(req))
 
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const estadisticasOficinas = async (req, res) => {
+  try {
+    const result = await DAL.statOficinas(estadisticaFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
 export const crear = async (req, res) => {
   try {
     const result = await DAL.insert(insertFromRec(req))
