@@ -102,20 +102,27 @@ FROM (SELECT TRUNC(hh.fechit),
 `
 const estadisticaOficinaSql = `SELECT 
   oo.desofi,
-  SUM(pend) "PEN",
-  SUM(adju) "ADJ",
-  SUM(resu) "RES",
-  SUM(pend+adju+resu) "TOT"
+  SUM(pen) "PEN",
+  SUM(adj) "ADJ",
+  SUM(res) "RES",
+  SUM(pen+adj+res) "TOT"
   FROM (
-    SELECT ff.ofifra,
-    SUM(CASE WHEN ff.stafra = 0 THEN 1 ELSE 0 END) as pend,
-    SUM(CASE WHEN ff.stafra = 1 THEN 1 ELSE 0 END) as adju,
-    SUM(CASE WHEN ff.stafra = 2 THEN 1 ELSE 0 END) as resu
-    FROM fraudes ff
-    WHERE ff.tipfra = :tipfra
-    GROUP BY ff.ofifra
-) p1
-INNER JOIN oficinas oo ON oo.idofic = p1.ofifra
+      WITH vOficinas AS (
+        SELECT oo.idofic FROM oficinas oo
+      )
+      SELECT v.idofic as ofi, 0 as pen, 0 as adj, 0 as res
+      FROM vOficinas v
+      UNION ALL
+      SELECT ff.ofifra,
+        SUM(CASE WHEN ff.stafra = 0 THEN 1 ELSE 0 END) as pen,
+        SUM(CASE WHEN ff.stafra = 1 THEN 1 ELSE 0 END) as adj,
+        SUM(CASE WHEN ff.stafra = 2 THEN 1 ELSE 0 END) as res
+        FROM fraudes ff
+        WHERE ff.fecfra = TO_DATE(:fecfra, 'YYYY-MM-DD')
+          AND ff.tipfra = :tipfra
+        GROUP BY ff.ofifra
+  ) p1
+INNER JOIN oficinas oo ON oo.idofic = p1.ofi
 GROUP BY ROLLUP(oo.desofi)
 `
 const estadisticaSituacionSql = `SELECT
@@ -407,8 +414,6 @@ export const statHitos = async (bind) => {
 export const statOficinas = async (bind) => {
   let result
 
-  delete bind.desfec
-  delete bind.hasfec
   try {
     result = await simpleExecute(estadisticaOficinaSql, bind)
   } catch (error) {

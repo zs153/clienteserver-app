@@ -23,7 +23,7 @@ apiFormularioRouter.post('/formularios/delete', borrar)
 apiFormularioRouter.post('/formularios/cambio', cambioEstado)
 apiFormularioRouter.post('/formularios/stats', estadisticas)
 apiFormularioRouter.post('/formularios/sms/insert', crearSms)
-apiFormularioRouter.post('/fraudes/stat/formularios', estadisticasFormularios)
-apiFormularioRouter.post('/fraudes/stat/oficinas', estadisticasOficinas)
+apiFormularioRouter.post('/formularios/stat/formularios', estadisticasFormularios)
+apiFormularioRouter.post('/formularios/stat/oficinas', estadisticasOficinas)
 
 export default apiFormularioRouter

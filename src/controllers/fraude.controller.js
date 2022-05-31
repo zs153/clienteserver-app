@@ -103,11 +103,19 @@ const estadisticaFromRec = (req) => {
     desfec: req.body.periodo.desde,
     hasfec: req.body.periodo.hasta,
   }
-  const tipo = {
-    tipfra: req.body.tipo.tipfra,
+  const fraude = {
+    tipfra: req.body.fraude.tipfra,
   }
 
-  return Object.assign(periodo, tipo)
+  return Object.assign(periodo, fraude)
+}
+const cargaFromRec = (req) => {
+  const fraude = {
+    tipfra: req.body.fraude.tipfra,
+    fecfra: req.body.fraude.fecfra,
+  }
+
+  return fraude
 }
 const smsFromRec = (req) => {
   const fraude = {
@@ -282,7 +290,7 @@ export const estadisticasHitos = async (req, res) => {
 }
 export const estadisticasOficinas = async (req, res) => {
   try {
-    const result = await DAL.statOficinas(estadisticaFromRec(req))
+    const result = await DAL.statOficinas(cargaFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)
