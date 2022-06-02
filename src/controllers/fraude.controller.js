@@ -150,6 +150,52 @@ const insertHitoFromRec = (req) => {
 
   return Object.assign(fraude, hito, movimiento)
 }
+const insertHitoLiqFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+  }
+  const hito = {
+    tiphit: req.body.hito.tiphit,
+    imphit: req.body.hito.imphit,
+    obshit: req.body.hito.obshit,
+    stahit: req.body.hito.stahit,
+  }
+  const liquidacion = {
+    tipliq: req.body.liquidacion.tipliq,
+    impliq: req.body.liquidacion.impliq,
+    obsliq: req.body.liquidacion.obsliq,
+    staliq: req.body.liquidacion.staliq,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, hito, liquidacion, movimiento)
+}
+const insertHitoSanFromRec = (req) => {
+  const fraude = {
+    idfrau: req.body.fraude.idfrau,
+  }
+  const hito = {
+    tiphit: req.body.hito.tiphit,
+    imphit: req.body.hito.imphit,
+    obshit: req.body.hito.obshit,
+    stahit: req.body.hito.stahit,
+  }
+  const sancion = {
+    tipsan: req.body.sancion.tipsan,
+    impsan: req.body.sancion.impsan,
+    obssan: req.body.sancion.obssan,
+    stasan: req.body.sancion.stasan,
+  }
+  const movimiento = {
+    usumov: req.body.movimiento.usumov,
+    tipmov: req.body.movimiento.tipmov,
+  }
+
+  return Object.assign(fraude, hito, sancion, movimiento)
+}
 const insertEventoFromRec = (req) => {
   const fraude = {
     idfrau: req.body.fraude.idfrau,
@@ -360,6 +406,32 @@ export const hitosFraude = async (req, res) => {
 export const crearHito = async (req, res) => {
   try {
     const result = await DAL.insertHito(insertHitoFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const crearHitoLiquidacion = async (req, res) => {
+  try {
+    const result = await DAL.insertHitoLiquidacion(insertHitoLiqFromRec(req))
+
+    if (result !== null) {
+      res.status(200).json(result)
+    } else {
+      res.status(404).end()
+    }
+  } catch (err) {
+    res.status(500).end()
+  }
+}
+export const crearHitoSancion = async (req, res) => {
+  try {
+    const result = await DAL.insertHitoSancion(insertHitoSanFromRec(req))
 
     if (result !== null) {
       res.status(200).json(result)

@@ -256,6 +256,36 @@ const insertHitoSql = `BEGIN FORMULARIOS_PKG.INSERTHITOFRAUDE(
   :idhito
 ); END;
 `
+const insertHitoLiquidacionSql = `BEGIN FORMULARIOS_PKG.INSERTHITOLIQFRAUDE(
+  :idfrau,
+  :tiphit,
+  :imphit,
+  :obshit,
+  :stahit,
+  :tipliq,
+  :impliq,
+  :obsliq,
+  :staliq,
+  :usumov,
+  :tipmov,
+  :idhito
+); END;
+`
+const insertHitoSancionSql = `BEGIN FORMULARIOS_PKG.INSERTHITOSANFRAUDE(
+  :idfrau,
+  :tiphit,
+  :imphit,
+  :obshit,
+  :stahit,
+  :tipsan,
+  :impsan,
+  :obssan,
+  :stasan,
+  :usumov,
+  :tipmov,
+  :idhito
+); END;
+`
 const insertEventoSql = `BEGIN FORMULARIOS_PKG.INSERTEVENTOFRAUDE(
   :idfrau,
   :tipeve,
@@ -469,6 +499,36 @@ export const insertHito = async (bind) => {
   try {
     const result = await simpleExecute(insertHitoSql, bind)
 
+    bind.idhito = await result.outBinds.idhito
+  } catch (error) {
+    bind = null
+  }
+
+  return bind
+}
+export const insertHitoLiquidacion = async (bind) => {
+  bind.idhito = {
+    dir: oracledb.BIND_OUT,
+    type: oracledb.NUMBER,
+  }
+
+  try {
+    const result = await simpleExecute(insertHitoLiquidacionSql, bind)
+    bind.idhito = await result.outBinds.idhito
+  } catch (error) {
+    bind = null
+  }
+
+  return bind
+}
+export const insertHitoSancion = async (bind) => {
+  bind.idhito = {
+    dir: oracledb.BIND_OUT,
+    type: oracledb.NUMBER,
+  }
+
+  try {
+    const result = await simpleExecute(insertHitoSancionSql, bind)
     bind.idhito = await result.outBinds.idhito
   } catch (error) {
     bind = null
